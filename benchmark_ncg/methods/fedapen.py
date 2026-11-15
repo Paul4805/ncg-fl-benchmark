@@ -57,9 +57,9 @@ def run(cfg: dict, logger=print, device=None, eval_rounds=None) -> dict:
     kl = nn.KLDivLoss(reduction="batchmean")
     log_softmax, softmax = nn.LogSoftmax(dim=1), nn.Softmax(dim=1)
 
-    shared_global = ctx.build_model()
-    private = {cid: ctx.build_model() for cid in range(n_clients)}
-    shared = {cid: ctx.build_model() for cid in range(n_clients)}
+    shared_global = ctx.build_global_model()
+    private = {cid: ctx.build_client_model(cid) for cid in range(n_clients)}
+    shared = {cid: ctx.build_global_model() for cid in range(n_clients)}
     for cid in range(n_clients):
         shared[cid].load_state_dict(shared_global.state_dict())
 

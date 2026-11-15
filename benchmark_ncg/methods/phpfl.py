@@ -96,10 +96,10 @@ def run(cfg: dict, logger=print, device=None, eval_rounds=None) -> dict:
     log_softmax, softmax = nn.LogSoftmax(dim=1), nn.Softmax(dim=1)
     mmd = MMDLoss()
 
-    global_model = ctx.build_model()
+    global_model = ctx.build_global_model()
     server_state = models.clone_state(global_model)
-    private = {cid: ctx.build_model() for cid in range(n_clients)}
-    personal = {cid: ctx.build_model() for cid in range(n_clients)}
+    private = {cid: ctx.build_client_model(cid) for cid in range(n_clients)}
+    personal = {cid: ctx.build_global_model() for cid in range(n_clients)}
     for cid in range(n_clients):
         personal[cid].load_state_dict(server_state)
 
