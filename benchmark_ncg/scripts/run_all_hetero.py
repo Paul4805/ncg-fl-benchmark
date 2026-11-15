@@ -121,6 +121,8 @@ def main(argv=None):
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--settings", nargs="+", default=None, choices=list(config.SETTINGS),
                     help="restrict to these settings (e.g. --settings B3)")
+    ap.add_argument("--methods", nargs="+", default=None, choices=list(hc.HET_METHODS),
+                    help="restrict to these methods (e.g. --methods FedAPEN)")
     args = ap.parse_args(argv)
 
     ok, diffs = hc.verify_main_table()
