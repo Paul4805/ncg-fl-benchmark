@@ -7,7 +7,7 @@ as label skew increases.
 ## Hypothesis
 
 > NCG should be **near 0 under IID** (B1), **positive under non-IID**
-> (B2, α = 0.5) and **increase as α decreases** (B3, α = 0.1) for **FedAvg,
+> (B2, alpha = 0.5) and **increase as alpha decreases** (B3, alpha = 0.1) for **FedAvg,
 > FedAPEN, FedFV and PHP-FL**, relative to centralized learning. That is, FL
 > leaves a positive and increasing class gap as label skew worsens.
 
@@ -31,11 +31,11 @@ implemented. The only method names used in code, configs, results and logs are
 
 | item | value |
 |---|---|
-| settings | B1 IID, B2 Dirichlet α=0.5, B3 Dirichlet α=0.1 |
+| settings | B1 IID, B2 Dirichlet alpha=0.5, B3 Dirichlet alpha=0.1 |
 | clients | 20, 100 % participation |
 | rounds / local epochs | R = 50, E = 5 (250 local epochs per client) |
 | batch / optimizer | 64, SGD momentum 0.9, weight decay 1e-4, lr 0.01 cosine |
-| backbone | CNN-2 (2 conv layers, 28×28 input) for every model |
+| backbone | CNN-2 (2 conv layers, 28x28 input) for every model |
 | seeds | 0, 1, 2 (partitions, initialization, batch order) |
 | BloodMNIST | official split: 11,959 train / 1,712 val / 3,421 test |
 | FashionMNIST | per-seed subsample: 30,000 train / 5,000 test (3,000 / 500 per class) |
@@ -57,9 +57,9 @@ ClassGap   = max_c(recall_c) - min_c(recall_c)
 NCG        = (ClassGap_FL - ClassGap_Centralized) / (1 - ClassGap_Centralized)
 ```
 
-* NCG = 0 → FL matches the centralized class gap.
-* NCG > 0 → FL has a larger class gap than centralized training.
-* NCG < 0 → FL has a smaller class gap (reported, not hidden).
+* NCG = 0 -> FL matches the centralized class gap.
+* NCG > 0 -> FL has a larger class gap than centralized training.
+* NCG < 0 -> FL has a smaller class gap (reported, not hidden).
 
 **Averaging rule:** per-class recall vectors are always averaged first, then the
 class gap is computed. Class gaps are never averaged. For FedAPEN and PHP-FL the
@@ -102,14 +102,14 @@ independent subprocesses; FL jobs wait for their centralized reference.
 |---|---|---|
 | FedAvg | standard sample-weighted FedAvg | none (global model) |
 | FedFV | official easyFL FedFV aggregation (`alpha=0.1`, `tau=1`) | none (global model) |
-| FedAPEN | official `learned_adaptive_training` (KDD 2023) | `w·private + (1−w)·shared` per client |
-| PHP-FL | official `clientPHP`/`serverPHP` (NeurIPS 2025) | `w·private + (1−w)·personal_global` per client |
+| FedAPEN | official `learned_adaptive_training` (KDD 2023) | `w-private + (1-w)-shared` per client |
+| PHP-FL | official `clientPHP`/`serverPHP` (NeurIPS 2025) | `w-private + (1-w)-personal_global` per client |
 | Centralized | single CNN-2 on the full aggregated train set | n/a |
 
 FedAPEN and PHP-FL are run at CNN-2 scale on homogeneous data, as required by
 the benchmark's B1-B3 reduction; their own model-heterogeneous/official
 settings are out of scope. Deviations (including the adaptability/validation
-floor guards needed for tiny α=0.1 shards) are documented in
+floor guards needed for tiny alpha=0.1 shards) are documented in
 [`DEVIATIONS.md`](DEVIATIONS.md).
 
 ## Artifacts
@@ -167,7 +167,7 @@ protocol:
 - Report the extension NCG side by side with the R=50 NCG for the same method
   and setting, and state explicitly that only the affected method(s) received
   the higher budget.
-- If the R=75 run also fails the same Δ(last-10-rounds) > 1.0 pp rule, report
+- If the R=75 run also fails the same Delta(last-10-rounds) > 1.0 pp rule, report
   that fact and do not extend further; the method is genuinely slow to converge
   on this data and the lower-bound framing stands.
 

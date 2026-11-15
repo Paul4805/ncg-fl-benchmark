@@ -867,7 +867,7 @@
       "tier": "single"
     }
   ],
-  "generated_at": "2026-11-15 00:32:29",
+  "generated_at": "2026-11-15 15:44:06",
   "local_epochs": 5,
   "methods": [
     "FedAvg",

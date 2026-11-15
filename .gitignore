@@ -2,18 +2,12 @@
 benchmark_ncg/data/
 benchmark_ncg/checkpoints/
 benchmark_ncg/logs/
-
-# invalid heterogeneous artifacts (kept locally for audit)
-benchmark_ncg/results/_invalid_hetero_audit/
-benchmark_ncg/results/runs_hetero/
-benchmark_ncg/results/centralized_hetero/
-benchmark_ncg/results/plots_hetero/
+benchmark_ncg/results/smoke/
 
 # python / tooling caches
 __pycache__/
 *.pyc
 .pytest_cache/
-_refs_hetero/
 _refs/
 
 # tensors / archives

@@ -32,7 +32,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, Subset
 
 from ..core import metrics, models, train_utils
-from .common import RunContext, auxiliary_split, assert_hetero_client_models, make_result, record_eval_round
+from .common import RunContext, auxiliary_split, make_result, record_eval_round
 
 
 class MMDLoss(nn.Module):
@@ -100,9 +100,6 @@ def run(cfg: dict, logger=print, device=None, eval_rounds=None) -> dict:
     server_state = models.clone_state(global_model)
     private = {cid: ctx.build_client_model(cid) for cid in range(n_clients)}
     personal = {cid: ctx.build_global_model() for cid in range(n_clients)}
-    params_actual = None
-    if cfg.get("hetero"):
-        params_actual = assert_hetero_client_models(ctx, list(private.values()))
     for cid in range(n_clients):
         personal[cid].load_state_dict(server_state)
 
@@ -241,6 +238,5 @@ def run(cfg: dict, logger=print, device=None, eval_rounds=None) -> dict:
             "phpfl_forced_rule_clients": forced_clients,
             "learned_weights": deployed_w,
             "eval_curve": curve,
-            "client_params_actual": params_actual,
         },
     )

@@ -31,17 +31,14 @@ class RunContext:
             raise ValueError(f"partition has {self.num_clients} clients, config says {cfg['client_count']}")
 
     # -- models -------------------------------------------------------------
-    def build_model(self, spec: dict | None = None) -> torch.nn.Module:
-        spec = spec or {"name": config.BACKBONE, "params": {}}
-        return models.build_model(spec["name"], self.in_channels, self.num_classes,
-                                  **(spec.get("params") or {})).to(self.device)
+    def build_model(self) -> torch.nn.Module:
+        return models.build_model(config.BACKBONE, self.in_channels, self.num_classes).to(self.device)
 
     def build_client_model(self, cid: int) -> torch.nn.Module:
-        specs = self.cfg.get("client_model_specs")
-        return self.build_model(specs[cid] if specs else None)
+        return self.build_model()
 
     def build_global_model(self) -> torch.nn.Module:
-        return self.build_model(self.cfg.get("global_model_spec"))
+        return self.build_model()
 
     # -- optimisation -------------------------------------------------------
     def lr_for_round(self, r: int) -> float:
@@ -136,27 +133,6 @@ def make_result(ctx: RunContext, fl_recall, t0: float, notes: str,
 def record_eval_round(curve: dict | None, r: int, eval_rounds, acc: float):
     if curve is not None and eval_rounds and (r + 1) in set(int(x) for x in eval_rounds):
         curve[str(r + 1)] = float(acc)
-
-
-def assert_hetero_client_models(ctx, client_models):
-    """Fail loudly if the heterogeneous factory was bypassed (all CNN2)."""
-    counts = [models.count_parameters(m) for m in client_models]
-    dataset = ctx.cfg["dataset"]
-    cnn2_ref = 44584 if dataset == "BloodMNIST" else 50282
-    if all(c == cnn2_ref for c in counts):
-        raise AssertionError(
-            f"BUG: all clients built as CNN2 ({cnn2_ref} params) - build_client_model bypassed"
-        )
-    expected = {int(a["params_by_dataset"][dataset])
-                for a in ctx.cfg.get("method_arch_list", []) if "params_by_dataset" in a}
-    if expected and set(counts) != expected:
-        raise AssertionError(
-            f"{ctx.cfg['method']} expected {sorted(expected)} for {dataset}, "
-            f"got {sorted(set(counts))}"
-        )
-    if ctx.cfg["method"] == "FedAPEN" and len(set(counts)) != 20:
-        raise AssertionError(f"FedAPEN expected 20 distinct client archs, got {len(set(counts))}")
-    return counts
 
 
 # ---------------------------------------------------------------------------

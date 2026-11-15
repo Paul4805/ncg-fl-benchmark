@@ -26,7 +26,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, Subset
 
 from ..core import metrics, models, train_utils
-from .common import RunContext, auxiliary_split, assert_hetero_client_models, make_result, record_eval_round
+from .common import RunContext, auxiliary_split, make_result, record_eval_round
 
 
 def _learn_weight(ctx, private, shared, w, opt_w, loader, criterion, steps):
@@ -60,9 +60,6 @@ def run(cfg: dict, logger=print, device=None, eval_rounds=None) -> dict:
     shared_global = ctx.build_global_model()
     private = {cid: ctx.build_client_model(cid) for cid in range(n_clients)}
     shared = {cid: ctx.build_global_model() for cid in range(n_clients)}
-    params_actual = None
-    if cfg.get("hetero"):
-        params_actual = assert_hetero_client_models(ctx, list(private.values()))
     for cid in range(n_clients):
         shared[cid].load_state_dict(shared_global.state_dict())
 
@@ -181,6 +178,5 @@ def run(cfg: dict, logger=print, device=None, eval_rounds=None) -> dict:
             "fedapen_forced_rule_clients": forced_clients,
             "learned_weights": recalled,
             "eval_curve": curve,
-            "client_params_actual": params_actual,
         },
     )

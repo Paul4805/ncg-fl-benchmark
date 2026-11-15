@@ -37,47 +37,10 @@ class CNN2(nn.Module):
         return self.head(self.base(x))
 
 
-class CNN2BN(nn.Module):
-    """Official FedAPEN cnn2_bn (models/cnn.py:81-109), 28x28-adapted flatten size.
-
-    ``channel_diff`` reproduces the official ``--he 1`` heterogeneity:
-    channel_diff = (5 - client_id) * 2 - 1, widths = [64+d, 128+2d, 256+4d].
-    """
-
-    def __init__(self, in_channels: int = 3, num_classes: int = 10, channel_diff: int = 0):
-        super().__init__()
-        ch = [64 + channel_diff, 128 + 2 * channel_diff, 256 + 4 * channel_diff]
-        if min(ch) <= 0:
-            raise ValueError(f"invalid channel_diff {channel_diff}: widths {ch}")
-        self.channel_num = ch
-        self.maxpool = nn.MaxPool2d(2, 2)
-        self.conv1 = nn.Sequential(nn.Conv2d(in_channels, ch[0], 3), nn.BatchNorm2d(ch[0]), nn.ReLU())
-        self.conv2 = nn.Sequential(nn.Conv2d(ch[0], ch[1], 3), nn.BatchNorm2d(ch[1]), nn.ReLU())
-        self.conv3 = nn.Sequential(nn.Conv2d(ch[1], ch[2], 3), nn.BatchNorm2d(ch[2]), nn.ReLU())
-        with torch.no_grad():
-            n_feat = self._features(torch.zeros(1, in_channels, 28, 28)).shape[1]
-        self.fc = nn.Linear(n_feat, num_classes)
-
-    def _features(self, x):
-        x = self.maxpool(self.conv1(x))
-        x = self.maxpool(self.conv2(x))
-        x = self.conv3(x)
-        return x.flatten(1)
-
-    def forward(self, x):
-        return self.fc(self._features(x))
-
-
-def build_model(name: str, in_channels: int, num_classes: int, **params) -> nn.Module:
-    if name == "cnn2":
-        return CNN2(in_channels=in_channels, num_classes=num_classes)
-    if name == "cnn2_bn":
-        return CNN2BN(in_channels=in_channels, num_classes=num_classes,
-                      channel_diff=int(params.get("channel_diff", 0)))
-    from .hetero_models import CANDIDATES, SUBSTITUTES, build_substitute
-    if name in SUBSTITUTES or name in CANDIDATES:
-        return build_substitute(name, in_channels, num_classes)
-    raise ValueError(f"unknown backbone {name!r}")
+def build_model(name: str, in_channels: int, num_classes: int) -> nn.Module:
+    if name != "cnn2":
+        raise ValueError(f"only 'cnn2' is allowed, got {name!r}")
+    return CNN2(in_channels=in_channels, num_classes=num_classes)
 
 
 def count_parameters(model: nn.Module) -> int:

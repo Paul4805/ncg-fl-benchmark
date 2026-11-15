@@ -22,9 +22,7 @@ from torch.utils.data import DataLoader, Subset
 from ..core import config, datasets, metrics, models, train_utils
 
 
-def train_centralized(dataset: str, seed: int, device=None, logger=print, protocol: dict | None = None,
-                      model_spec: dict | None = None, model_label: str | None = None,
-                      run_id_override: str | None = None) -> dict:
+def train_centralized(dataset: str, seed: int, device=None, logger=print, protocol: dict | None = None) -> dict:
     t0 = time.time()
     device = device or train_utils.get_device()
     train_utils.set_seed(seed)
@@ -51,11 +49,7 @@ def train_centralized(dataset: str, seed: int, device=None, logger=print, protoc
     train_subset = Subset(train_base, [int(i) for i in tr_idx])
     val_loader = DataLoader(val_ds, batch_size=512, shuffle=False, num_workers=0)
 
-    model = models.build_model(
-        (model_spec or {"name": config.BACKBONE, "params": {}})["name"],
-        bundle.in_channels, bundle.num_classes,
-        **((model_spec or {"params": {}}).get("params") or {}),
-    ).to(device)
+    model = models.build_model(config.BACKBONE, bundle.in_channels, bundle.num_classes).to(device)
     optimizer = train_utils.make_optimizer(model, protocol["lr"], protocol["momentum"],
                                           protocol["weight_decay"])
     scheduler = train_utils.cosine_scheduler(optimizer, protocol["max_epochs"])
@@ -114,12 +108,11 @@ def train_centralized(dataset: str, seed: int, device=None, logger=print, protoc
     test_acc = train_utils.accuracy(model, bundle.test_x, bundle.test_y, device)
 
     result = {
-        "run_id": run_id_override or config.central_key(dataset, seed),
+        "run_id": config.central_key(dataset, seed),
         "kind": "centralized",
         "dataset": dataset,
         "seed": int(seed),
-        "backbone": (model_spec or {"name": config.BACKBONE})["name"],
-        "backbone_label": model_label or (model_spec or {"name": config.BACKBONE})["name"],
+        "backbone": config.BACKBONE,
         "per_class_recall": [float(v) for v in recall],
         "class_gap": metrics.class_gap(recall),
         "minority_class": metrics.minority_class(recall),

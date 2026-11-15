@@ -103,8 +103,6 @@ def test_no_heavy_backbone_code_paths():
     offenders = []
     for sub in ("core", "methods", "centralized", "scripts"):
         for path in (config.BENCH_ROOT / sub).rglob("*.py"):
-            if path.name.startswith("hetero_"):
-                continue  # heterogeneous mode intentionally instantiates official architectures
             text = path.read_text(encoding="utf-8", errors="ignore")
             if "torchvision.models" in text or "torchvision import models" in text:
                 offenders.append(str(path))
@@ -391,109 +389,6 @@ def test_phpfl_full_objective_is_stable_at_shared_lr():
 
 def test_smoke_results_are_not_in_formal_results():
     assert not any(p.name.startswith("SMOKE") for p in config.RUNS_DIR.glob("*.json"))
-
-
-# ---------------------------------------------------------------------------
-# Heterogeneous supplementary run (separate namespace)
-# ---------------------------------------------------------------------------
-def test_hetero_scope_and_ids():
-    from benchmark_ncg.core import hetero_config as hc
-    from benchmark_ncg.scripts.run_all import build_tasks
-
-    runs = list(hc.all_hetero_runs())
-    assert len(runs) == 36
-    assert sum(r["method"] == "FedAPEN" for r in runs) == 18
-    assert sum(r["method"] == "PHP-FL" for r in runs) == 18
-    assert all(r["run_id"].endswith("__HET__R50") for r in runs)
-    cfg_b1 = hc.resolve_run_hetero("B1", "PHP-FL", "BloodMNIST", 0)
-    assert cfg_b1["setting"] == "B1"
-    assert hc.num_expected_runs() == 36
-    assert hc.num_expected_refs() == 20 * 2 * 3 + 4 * 2 * 3
-
-    main_ids = [t.task_id for t in build_tasks(resume=False) if t.kind == "fl"]
-    assert len(main_ids) == 72
-    assert not any("HET" in i for i in main_ids)
-
-
-def test_hetero_arch_map_and_budget():
-    import torch
-    from benchmark_ncg.core import hetero_config as hc, models
-
-    path = hc.write_arch_map()
-    m = config.load_json(path)
-    assert len(m["FedAPEN"]["architectures"]) == 20
-    assert len(m["PHP-FL"]["architectures"]) == 4
-    assert all(a["params"] <= 500_000 for a in m["PHP-FL"]["architectures"])
-    # FedAPEN uses the official width-heterogeneous CNN2_BN set (122k-504k), not substitutes
-    assert max(a["params"] for a in m["FedAPEN"]["architectures"]) <= 600_000
-    assert m["PHP-FL"]["client_to_arch"] == {str(c): c % 4 for c in range(20)}
-    assert m["FedAPEN"]["client_to_arch"] == {str(c): c for c in range(20)}
-    for a in m["PHP-FL"]["architectures"]:
-        model = models.build_model(a["class_name"], 3, 8)
-        assert sum(p.numel() for p in model.parameters()) == a["params"]
-        with torch.no_grad():
-            f = model.base(torch.randn(2, 3, 28, 28))
-            assert f.shape == (2, 512)
-            assert model.head(f).shape == (2, 8)
-
-
-@pytest.mark.parametrize("method", ["FedAPEN", "PHP-FL"])
-@pytest.mark.parametrize("dataset", ["BloodMNIST", "FashionMNIST"])
-def test_hetero_param_assert_all_combos(method, dataset):
-    """Assertion helper must pass for every method/dataset combo (smoke covers Blood only)."""
-    from types import SimpleNamespace
-    from benchmark_ncg.core import hetero_config as hc, models
-    from benchmark_ncg.methods.common import assert_hetero_client_models
-
-    cfg = hc.resolve_run_hetero("B3", method, dataset, 0)
-    in_ch = config.DATASETS[dataset]["in_channels"]
-    C = config.DATASETS[dataset]["num_classes"]
-    built = [models.build_model(s["name"], in_ch, C, **(s.get("params") or {}))
-             for s in cfg["client_model_specs"]]
-    counts = assert_hetero_client_models(SimpleNamespace(cfg=cfg), built)
-    expected = [a["params_by_dataset"][dataset] for a in cfg["method_arch_list"]]
-    if method == "FedAPEN":
-        assert counts == expected
-        assert len(set(counts)) == 20
-    else:
-        assert set(counts) == set(expected)
-        assert all(counts.count(v) == 5 for v in expected)
-        assert len(set(counts)) == 4
-
-
-@pytest.mark.parametrize("dataset", ["BloodMNIST", "FashionMNIST"])
-def test_hetero_param_assert_rejects_all_cnn2(dataset):
-    """The bypass guard must fire on both datasets (CNN2 fallback detection)."""
-    from types import SimpleNamespace
-    from benchmark_ncg.core import hetero_config as hc, models
-    from benchmark_ncg.methods.common import assert_hetero_client_models
-
-    cfg = hc.resolve_run_hetero("B3", "PHP-FL", dataset, 0)
-    in_ch = config.DATASETS[dataset]["in_channels"]
-    C = config.DATASETS[dataset]["num_classes"]
-    cnn2 = [models.build_model("cnn2", in_ch, C) for _ in range(20)]
-    with pytest.raises(AssertionError, match="all clients built as CNN2"):
-        assert_hetero_client_models(SimpleNamespace(cfg=cfg), cnn2)
-
-
-def test_hetero_scope_strings_and_substitute_flag():
-    from benchmark_ncg.core import hetero_config as hc
-    assert hc.SUBSTITUTE_SOURCE.startswith("substituted from official HtM4")
-    cfg = hc.resolve_run_hetero("B3", "PHP-FL", "FashionMNIST", 2)
-    assert cfg["hetero"] is True
-    assert cfg["centralized_ref_mode"] == "per_architecture"
-    assert cfg["run_id"].endswith("__HET__R50")
-    assert cfg["client_count"] == 20
-    assert cfg["training"]["rounds"] == 50
-    assert len(cfg["client_model_specs"]) == 20
-    assert cfg["client_to_arch"] == {str(c): c % 4 for c in range(20)}
-
-
-def test_main_table_checksum_baseline():
-    from benchmark_ncg.core import hetero_config as hc
-    assert (config.RESULTS_DIR / "main_table_checksums.json").exists()
-    ok, diffs = hc.verify_main_table()
-    assert ok, diffs
 
 
 # ---------------------------------------------------------------------------
