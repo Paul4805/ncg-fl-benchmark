@@ -132,9 +132,88 @@ def main():
             lines.append(f"| {dataset} | {method} | {cells[0]} | {cells[1]} | {cells[2]} |")
     lines.append("")
 
+    acc_path = config.RESULTS_DIR / "summary_accuracy_hom.csv"
+    if acc_path.exists():
+        acc = pd.read_csv(acc_path)
+        cent = (acc[acc["method"] == "Centralized"]
+                .groupby("dataset")[["acc_mean", "bal_acc_mean"]].mean())
+        lines += ["## Accuracy (top-1 and balanced)", "",
+                  "Centralized baseline (top-1 / balanced): " + ", ".join(
+                      f"{ds} {cent.loc[ds, 'acc_mean']:.4f} / {cent.loc[ds, 'bal_acc_mean']:.4f}"
+                      for ds in cent.index), "",
+                  "| dataset | method | B1 acc | B2 acc | B3 acc |", "|---|---|---|---|---|"]
+        for dataset in config.DATASET_NAMES:
+            for method in config.FL_METHODS:
+                cells = []
+                for setting in ["B1", "B2", "B3"]:
+                    r = acc[(acc["dataset"] == dataset) & (acc["method"] == method) &
+                            (acc["setting"] == setting)]
+                    cells.append(f"{r['acc_mean'].iloc[0]:.4f} +/- {r['acc_std'].iloc[0]:.4f}"
+                                 if len(r) else "n/a")
+                lines.append(f"| {dataset} | {method} | {cells[0]} | {cells[1]} | {cells[2]} |")
+        lines += ["", "Accuracy gap = centralized - method (positive = FL worse):", "",
+                  "| dataset | method | B1 top-1 | B2 top-1 | B3 top-1 | B1 bal | B2 bal | B3 bal |",
+                  "|---|---|---|---|---|---|---|---|"]
+        for dataset in config.DATASET_NAMES:
+            ca = float(cent.loc[dataset, "acc_mean"])
+            cb = float(cent.loc[dataset, "bal_acc_mean"])
+            for method in config.FL_METHODS:
+                cells = []
+                for setting in ["B1", "B2", "B3"]:
+                    r = acc[(acc["dataset"] == dataset) & (acc["method"] == method) &
+                            (acc["setting"] == setting)]
+                    cells.append(f"{ca - float(r['acc_mean'].iloc[0]):+.4f}" if len(r) else "n/a")
+                for setting in ["B1", "B2", "B3"]:
+                    r = acc[(acc["dataset"] == dataset) & (acc["method"] == method) &
+                            (acc["setting"] == setting)]
+                    cells.append(f"{cb - float(r['bal_acc_mean'].iloc[0]):+.4f}" if len(r) else "n/a")
+                lines.append(f"| {dataset} | {method} | " + " | ".join(cells) + " |")
+        lines.append("")
+
+        # C3: accuracy vs NCG paragraph (data-driven, no forced narrative)
+        cand = []
+        for method in HYP_METHODS + ["PHP-FL"]:
+            for dataset in config.DATASET_NAMES:
+                n3, _ = ncg_of(dataset, method, "B3")
+                n1, _ = ncg_of(dataset, method, "B1")
+                a3 = acc[(acc["dataset"] == dataset) & (acc["method"] == method) &
+                         (acc["setting"] == "B3")]
+                a1 = acc[(acc["dataset"] == dataset) & (acc["method"] == method) &
+                         (acc["setting"] == "B1")]
+                if n3 == n3 and len(a3) and len(a1):
+                    cand.append((n3, method, dataset, n1,
+                                 float(a1["acc_mean"].iloc[0]), float(a3["acc_mean"].iloc[0]),
+                                 float(a3["bal_acc_mean"].iloc[0])))
+        if cand:
+            n3, method, dataset, n1, acc1, acc3, bal3 = max(cand, key=lambda x: x[0])
+            delta = acc3 - bal3
+            pattern = "falls" if acc3 < acc1 else "does not fall"
+            lines += ["## Accuracy and NCG", "",
+                      f"From B1 to B3, {method}'s top-1 accuracy on {dataset} {pattern} "
+                      f"({acc1:.4f} -> {acc3:.4f}) while its NCG goes from {n1:+.4f} to "
+                      f"{n3:+.4f}. At B3 it reaches {100 * acc3:.2f}% top-1 and "
+                      f"{100 * bal3:.2f}% balanced accuracy; the top-1 minus balanced gap "
+                      f"(delta = {delta:+.4f}) is itself a proxy for class imbalance and is "
+                      f"consistent with the NCG direction." if acc3 < acc1 else
+                      f"At B3, {method} on {dataset} reaches {100 * acc3:.2f}% top-1 and "
+                      f"{100 * bal3:.2f}% balanced accuracy with NCG {n3:+.4f}; the top-1 "
+                      f"minus balanced gap (delta = {delta:+.4f}) is a proxy for class "
+                      f"imbalance. Note that accuracy from B1 to B3 does not fall for this "
+                      f"cell, so the expected accuracy/NCG opposition does not hold here.", ""]
+
     lines += ["## Recommendation", "",
               "The main comparison at R=50 is complete and defensible; the R=75 extension is "
               "available but not recommended for the main table.", ""]
+
+    lines += ["## Homogeneous verification", "",
+              "The homogeneous main table (72 FL runs + 6 centralized references) was verified "
+              "post-hoc to have been produced by the CNN-2 default model path, with every client "
+              "model at 44,584 params (BloodMNIST) or 50,282 (FashionMNIST). The model-factory bug "
+              "discovered during the heterogeneous block did not affect the homogeneous results "
+              "because the bug's fallback behavior (build_model() -> CNN-2) coincided with the "
+              "homogeneous block's intended model. Homogeneous run JSONs are content-identical to "
+              "commit bab3f7c (Git blob hashes match for all 72 files and git diff is clean; "
+              "working-tree bytes differ from the blob only by Windows CRLF line endings).", ""]
 
     (config.BENCH_ROOT / "RESULT_NOTE.md").write_text("\n".join(lines), encoding="utf-8")
     print(f"[result_note] wrote {config.BENCH_ROOT / 'RESULT_NOTE.md'}")

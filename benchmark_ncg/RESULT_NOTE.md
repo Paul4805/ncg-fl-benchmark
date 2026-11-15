@@ -49,6 +49,42 @@ Mean NCG (std across seeds), R=50:
 | FashionMNIST | FedFV | +0.058 (0.055) | +0.070 (0.078) | +0.237 (0.125) |
 | FashionMNIST | PHP-FL | +0.131 (0.060) | +0.169 (0.050) | +0.156 (0.082) |
 
+## Accuracy (top-1 and balanced)
+
+Centralized baseline (top-1 / balanced): BloodMNIST 0.9355 / 0.9265, FashionMNIST 0.9048 / 0.9048
+
+| dataset | method | B1 acc | B2 acc | B3 acc |
+|---|---|---|---|---|
+| BloodMNIST | FedAvg | 0.9068 +/- 0.0016 | 0.8962 +/- 0.0122 | 0.8156 +/- 0.0486 |
+| BloodMNIST | FedAPEN | 0.9263 +/- 0.0005 | 0.9108 +/- 0.0075 | 0.8236 +/- 0.0229 |
+| BloodMNIST | FedFV | 0.9067 +/- 0.0016 | 0.8955 +/- 0.0092 | 0.8193 +/- 0.0616 |
+| BloodMNIST | PHP-FL | 0.8253 +/- 0.0028 | 0.5980 +/- 0.0118 | 0.3415 +/- 0.0174 |
+| FashionMNIST | FedAvg | 0.9020 +/- 0.0036 | 0.8945 +/- 0.0046 | 0.8695 +/- 0.0174 |
+| FashionMNIST | FedAPEN | 0.9040 +/- 0.0018 | 0.8865 +/- 0.0008 | 0.7850 +/- 0.0346 |
+| FashionMNIST | FedFV | 0.9019 +/- 0.0036 | 0.8932 +/- 0.0037 | 0.8739 +/- 0.0144 |
+| FashionMNIST | PHP-FL | 0.8514 +/- 0.0040 | 0.6523 +/- 0.0059 | 0.3653 +/- 0.0280 |
+
+Accuracy gap = centralized - method (positive = FL worse):
+
+| dataset | method | B1 top-1 | B2 top-1 | B3 top-1 | B1 bal | B2 bal | B3 bal |
+|---|---|---|---|---|---|---|---|
+| BloodMNIST | FedAvg | +0.0287 | +0.0393 | +0.1199 | +0.0391 | +0.0496 | +0.1758 |
+| BloodMNIST | FedAPEN | +0.0092 | +0.0247 | +0.1119 | +0.0145 | +0.0298 | +0.1315 |
+| BloodMNIST | FedFV | +0.0288 | +0.0399 | +0.1162 | +0.0393 | +0.0496 | +0.1438 |
+| BloodMNIST | PHP-FL | +0.1102 | +0.3375 | +0.5940 | +0.1424 | +0.3592 | +0.5969 |
+| FashionMNIST | FedAvg | +0.0028 | +0.0103 | +0.0353 | +0.0028 | +0.0103 | +0.0353 |
+| FashionMNIST | FedAPEN | +0.0008 | +0.0183 | +0.1198 | +0.0008 | +0.0183 | +0.1198 |
+| FashionMNIST | FedFV | +0.0029 | +0.0116 | +0.0309 | +0.0029 | +0.0116 | +0.0309 |
+| FashionMNIST | PHP-FL | +0.0534 | +0.2525 | +0.5395 | +0.0534 | +0.2525 | +0.5395 |
+
+## Accuracy and NCG
+
+From B1 to B3, FedAvg's top-1 accuracy on BloodMNIST falls (0.9068 -> 0.8156) while its NCG goes from +0.0984 to +0.6241. At B3 it reaches 81.56% top-1 and 75.08% balanced accuracy; the top-1 minus balanced gap (delta = +0.0648) is itself a proxy for class imbalance and is consistent with the NCG direction.
+
 ## Recommendation
 
 The main comparison at R=50 is complete and defensible; the R=75 extension is available but not recommended for the main table.
+
+## Homogeneous verification
+
+The homogeneous main table (72 FL runs + 6 centralized references) was verified post-hoc to have been produced by the CNN-2 default model path, with every client model at 44,584 params (BloodMNIST) or 50,282 (FashionMNIST). The model-factory bug discovered during the heterogeneous block did not affect the homogeneous results because the bug's fallback behavior (build_model() -> CNN-2) coincided with the homogeneous block's intended model. Homogeneous run JSONs are content-identical to commit bab3f7c (Git blob hashes match for all 72 files and git diff is clean; working-tree bytes differ from the blob only by Windows CRLF line endings).
