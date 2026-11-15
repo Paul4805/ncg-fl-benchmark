@@ -40,6 +40,8 @@ def load_runs():
             "seed": int(d["seed"]), "ncg_hetero": float(d["ncg_hetero"]),
             "fl_class_gap": float(d["fl_class_gap"]),
             "cent_class_gap_hetero": float(d["cent_class_gap_hetero"]),
+            "test_accuracy": float(d["test_accuracy"]),
+            "per_class_recall": d["per_class_recall"],
         })
     return pd.DataFrame(rows)
 
@@ -131,6 +133,48 @@ def main():
             acc_lines.append(f"| {r['setting']} | {r['dataset']} | {r['method']} | "
                              f"{r['acc_mean']:.4f} +/- {r['acc_std']:.4f} | "
                              f"{r['bal_acc_mean']:.4f} +/- {r['bal_acc_std']:.4f} |")
+
+    # ---- per-seed PHP-FL Fashion B3 -------------------------------------
+    sub = df[(df["method"] == "PHP-FL") & (df["dataset"] == "FashionMNIST") &
+             (df["setting"] == "B3")]
+    if not sub.empty:
+        acc_lines += ["", "## Per-seed PHP-FL Fashion B3 (hetero)", "",
+                      "| seed | NCG_hetero | top-1 acc | FL class gap | minority class | "
+                      "minority recall | classes with recall < 0.05 |",
+                      "|---|---|---|---|---|---|---|"]
+        neg_rows = []
+        for _, r in sub.sort_values("seed").iterrows():
+            rec = np.asarray(r["per_class_recall"], dtype=float)
+            low = [(int(i), round(float(v), 4)) for i, v in enumerate(rec) if v < 0.05]
+            if r["ncg_hetero"] < 0:
+                neg_rows.append((int(r["seed"]), r, rec))
+            acc_lines.append(
+                f"| {int(r['seed'])} | {r['ncg_hetero']:+.4f} | {r['test_accuracy']:.4f} | "
+                f"{r['fl_class_gap']:.4f} | {int(rec.argmin())} | {rec.min():.4f} | "
+                f"{low if low else 'none'} |")
+        sd = float(sub["ncg_hetero"].std(ddof=1)) if len(sub) > 1 else 0.0
+        if neg_rows:
+            acc_lines += ["", "### Negative-NCG seeds", ""]
+            for seed, r, rec in neg_rows:
+                acc_lines += [
+                    f"Seed {seed} of PHP-FL Fashion B3 achieved NCG = {r['ncg_hetero']:+.4f}, "
+                    f"i.e. FL class gap ({r['fl_class_gap']:.4f}) was smaller than the centralized "
+                    f"mean-reference gap ({r['cent_class_gap_hetero']:.4f}). Per-class recalls: "
+                    f"{[round(float(v), 3) for v in rec]} (minority class {int(rec.argmin())}, "
+                    f"recall {rec.min():.4f}). The negative value coincides with uniformly low "
+                    f"accuracy ({r['test_accuracy']:.4f}) and reflects the uniform-failure regime "
+                    f"already described, not a fairness improvement: a model that predicts "
+                    f"near-uniformly across classes will have a small per-class recall spread "
+                    f"irrespective of accuracy. Report alongside the mean "
+                    f"({sub['ncg_hetero'].mean():+.3f}) to avoid the impression that PHP-FL is "
+                    f"'fair' on Fashion.", ""]
+        else:
+            acc_lines += [
+                "", f"PHP-FL Fashion B3 hetero NCG ranged from {sub['ncg_hetero'].min():+.3f} to "
+                f"{sub['ncg_hetero'].max():+.3f} across seeds (mean {sub['ncg_hetero'].mean():.3f}, "
+                f"std {sd:.3f}), with the width attributable to per-class recall variation across "
+                f"Dirichlet partitions rather than to accuracy variance (accuracy std was only "
+                f"{sub['test_accuracy'].std(ddof=1):.3f}).", ""]
     acc_lines += ["", "## Limitation (budget)", "",
                   "Heterogeneous results cover "
                   + ", ".join(f"{m} {sorted(df[df['method'] == m]['setting'].unique())}"

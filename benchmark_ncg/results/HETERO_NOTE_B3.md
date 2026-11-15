@@ -88,6 +88,19 @@ No cell changed by more than 0.05.
 | B3 | FashionMNIST | FedAPEN | 0.7651 +/- 0.0385 | 0.7651 +/- 0.0385 |
 | B3 | FashionMNIST | PHP-FL | 0.3360 +/- 0.0197 | 0.3360 +/- 0.0197 |
 
+## Per-seed PHP-FL Fashion B3 (hetero)
+
+| seed | NCG_hetero | top-1 acc | FL class gap | minority class | minority recall | classes with recall < 0.05 |
+|---|---|---|---|---|---|---|
+| 0 | +0.2627 | 0.3342 | 0.4636 | 6 | 0.1462 | none |
+| 1 | +0.0657 | 0.3565 | 0.3240 | 6 | 0.2216 | none |
+| 2 | -0.0085 | 0.3173 | 0.3500 | 3 | 0.1734 | none |
+
+### Negative-NCG seeds
+
+Seed 2 of PHP-FL Fashion B3 achieved NCG = -0.0085, i.e. FL class gap (0.3500) was smaller than the centralized mean-reference gap (0.3555). Per-class recalls: [0.322, 0.296, 0.328, 0.173, 0.318, 0.239, 0.198, 0.523, 0.379, 0.397] (minority class 3, recall 0.1734). The negative value coincides with uniformly low accuracy (0.3173) and reflects the uniform-failure regime already described, not a fairness improvement: a model that predicts near-uniformly across classes will have a small per-class recall spread irrespective of accuracy. Report alongside the mean (+0.107) to avoid the impression that PHP-FL is 'fair' on Fashion.
+
+
 ## Limitation (budget)
 
 Heterogeneous results cover FedAPEN ['B3'], PHP-FL ['B3']. B1 hetero was not evaluated in this block. The homogeneous R=50 main table remains the primary result; this block is a reference-sensitivity check under real heterogeneous client architectures.
