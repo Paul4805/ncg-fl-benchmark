@@ -1,0 +1,321 @@
+{
+  "FedAPEN": {
+    "architectures": [
+      {
+        "channel_diff": 9,
+        "class_name": "CNN2_BN",
+        "id": 0,
+        "params": 504146,
+        "params_by_dataset": {
+          "BloodMNIST": 504146,
+          "FashionMNIST": 508090
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": 7,
+        "class_name": "CNN2_BN",
+        "id": 1,
+        "params": 477554,
+        "params_by_dataset": {
+          "BloodMNIST": 477554,
+          "FashionMNIST": 481390
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": 5,
+        "class_name": "CNN2_BN",
+        "id": 2,
+        "params": 451682,
+        "params_by_dataset": {
+          "BloodMNIST": 451682,
+          "FashionMNIST": 455410
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": 3,
+        "class_name": "CNN2_BN",
+        "id": 3,
+        "params": 426530,
+        "params_by_dataset": {
+          "BloodMNIST": 426530,
+          "FashionMNIST": 430150
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": 1,
+        "class_name": "CNN2_BN",
+        "id": 4,
+        "params": 402098,
+        "params_by_dataset": {
+          "BloodMNIST": 402098,
+          "FashionMNIST": 405610
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": -1,
+        "class_name": "CNN2_BN",
+        "id": 5,
+        "params": 378386,
+        "params_by_dataset": {
+          "BloodMNIST": 378386,
+          "FashionMNIST": 381790
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": -3,
+        "class_name": "CNN2_BN",
+        "id": 6,
+        "params": 355394,
+        "params_by_dataset": {
+          "BloodMNIST": 355394,
+          "FashionMNIST": 358690
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": -5,
+        "class_name": "CNN2_BN",
+        "id": 7,
+        "params": 333122,
+        "params_by_dataset": {
+          "BloodMNIST": 333122,
+          "FashionMNIST": 336310
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": -7,
+        "class_name": "CNN2_BN",
+        "id": 8,
+        "params": 311570,
+        "params_by_dataset": {
+          "BloodMNIST": 311570,
+          "FashionMNIST": 314650
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": -9,
+        "class_name": "CNN2_BN",
+        "id": 9,
+        "params": 290738,
+        "params_by_dataset": {
+          "BloodMNIST": 290738,
+          "FashionMNIST": 293710
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": -11,
+        "class_name": "CNN2_BN",
+        "id": 10,
+        "params": 270626,
+        "params_by_dataset": {
+          "BloodMNIST": 270626,
+          "FashionMNIST": 273490
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": -13,
+        "class_name": "CNN2_BN",
+        "id": 11,
+        "params": 251234,
+        "params_by_dataset": {
+          "BloodMNIST": 251234,
+          "FashionMNIST": 253990
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": -15,
+        "class_name": "CNN2_BN",
+        "id": 12,
+        "params": 232562,
+        "params_by_dataset": {
+          "BloodMNIST": 232562,
+          "FashionMNIST": 235210
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": -17,
+        "class_name": "CNN2_BN",
+        "id": 13,
+        "params": 214610,
+        "params_by_dataset": {
+          "BloodMNIST": 214610,
+          "FashionMNIST": 217150
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": -19,
+        "class_name": "CNN2_BN",
+        "id": 14,
+        "params": 197378,
+        "params_by_dataset": {
+          "BloodMNIST": 197378,
+          "FashionMNIST": 199810
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": -21,
+        "class_name": "CNN2_BN",
+        "id": 15,
+        "params": 180866,
+        "params_by_dataset": {
+          "BloodMNIST": 180866,
+          "FashionMNIST": 183190
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": -23,
+        "class_name": "CNN2_BN",
+        "id": 16,
+        "params": 165074,
+        "params_by_dataset": {
+          "BloodMNIST": 165074,
+          "FashionMNIST": 167290
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": -25,
+        "class_name": "CNN2_BN",
+        "id": 17,
+        "params": 150002,
+        "params_by_dataset": {
+          "BloodMNIST": 150002,
+          "FashionMNIST": 152110
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": -27,
+        "class_name": "CNN2_BN",
+        "id": 18,
+        "params": 135650,
+        "params_by_dataset": {
+          "BloodMNIST": 135650,
+          "FashionMNIST": 137650
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      },
+      {
+        "channel_diff": -29,
+        "class_name": "CNN2_BN",
+        "id": 19,
+        "params": 122018,
+        "params_by_dataset": {
+          "BloodMNIST": 122018,
+          "FashionMNIST": 123910
+        },
+        "source": "FedAPEN/models/cnn.py:87-89 + node.py:65-67 (--he 1)"
+      }
+    ],
+    "client_to_arch": {
+      "0": 0,
+      "1": 1,
+      "10": 10,
+      "11": 11,
+      "12": 12,
+      "13": 13,
+      "14": 14,
+      "15": 15,
+      "16": 16,
+      "17": 17,
+      "18": 18,
+      "19": 19,
+      "2": 2,
+      "3": 3,
+      "4": 4,
+      "5": 5,
+      "6": 6,
+      "7": 7,
+      "8": 8,
+      "9": 9
+    },
+    "method": "FedAPEN"
+  },
+  "PHP-FL": {
+    "architectures": [
+      {
+        "class_name": "googlenet_micro2",
+        "family": "GoogLeNet-style inception",
+        "id": 0,
+        "params": 19473,
+        "params_by_dataset": {
+          "BloodMNIST": 19473,
+          "FashionMNIST": 20283
+        },
+        "source": "substituted from official HtM4 (5.6-11.2M) due to 5M cap and 12h budget; approved micro2 set (candidate B2); see DEVIATIONS.md"
+      },
+      {
+        "class_name": "densenet_micro2",
+        "family": "DenseNet-style dense blocks",
+        "id": 1,
+        "params": 19004,
+        "params_by_dataset": {
+          "BloodMNIST": 19004,
+          "FashionMNIST": 19814
+        },
+        "source": "substituted from official HtM4 (5.6-11.2M) due to 5M cap and 12h budget; approved micro2 set (candidate B2); see DEVIATIONS.md"
+      },
+      {
+        "class_name": "efficientnet_micro2",
+        "family": "EfficientNet-style MBConv",
+        "id": 2,
+        "params": 25276,
+        "params_by_dataset": {
+          "BloodMNIST": 25276,
+          "FashionMNIST": 26086
+        },
+        "source": "substituted from official HtM4 (5.6-11.2M) due to 5M cap and 12h budget; approved micro2 set (candidate B2); see DEVIATIONS.md"
+      },
+      {
+        "class_name": "resnet4_micro",
+        "family": "ResNet-style residual",
+        "id": 3,
+        "params": 29124,
+        "params_by_dataset": {
+          "BloodMNIST": 29124,
+          "FashionMNIST": 29934
+        },
+        "source": "substituted from official HtM4 (5.6-11.2M) due to 5M cap and 12h budget; approved micro2 set (candidate B2); see DEVIATIONS.md"
+      }
+    ],
+    "client_to_arch": {
+      "0": 0,
+      "1": 1,
+      "10": 2,
+      "11": 3,
+      "12": 0,
+      "13": 1,
+      "14": 2,
+      "15": 3,
+      "16": 0,
+      "17": 1,
+      "18": 2,
+      "19": 3,
+      "2": 2,
+      "3": 3,
+      "4": 0,
+      "5": 1,
+      "6": 2,
+      "7": 3,
+      "8": 0,
+      "9": 1
+    },
+    "method": "PHP-FL"
+  },
+  "note": "FedAPEN: official --he 1 per-client CNN2_BN widths (20 clients -> 20 archs). PHP-FL: approved 4-model substitutes for the official HtM4 family, round-robin cid % 4; substituted from official HtM4 (5.6-11.2M) due to 5M cap and 12h budget; approved micro2 set (candidate B2); see DEVIATIONS.md"
+}

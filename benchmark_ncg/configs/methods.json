@@ -1,0 +1,51 @@
+{
+  "FedAvg": {
+    "source": "standard Federated Averaging baseline (no official paper repo); shared hyper-parameters",
+    "hparams": {},
+    "aggregation": "sample-count weighted average of client weights"
+  },
+  "FedFV": {
+    "source": "https://github.com/WwZzz/easyFL (flgo/algorithm/fedfv.py) -- FedFV as the aggregation rule",
+    "hparams": {
+      "fedfv_alpha": 0.1,
+      "fedfv_tau": 1
+    },
+    "aggregation": "uniform mean of projected/fairness-corrected deltas (official easyFL rule)"
+  },
+  "FedAPEN": {
+    "source": "https://github.com/zhenqincn/FedAPEN (learned_adaptive_training)",
+    "hparams": {
+      "adapt_ratio": 0.05,
+      "private_weight_lr": 0.001,
+      "weight_steps": 10,
+      "min_adapt": 2,
+      "max_adapt": 5,
+      "adapt_floor_divisor": 4,
+      "grad_clip_norm": 5.0
+    },
+    "aggregation": "uniform mean of shared models; private models stay local",
+    "personalization": "deployed model = weight * private + (1 - weight) * shared"
+  },
+  "PHP-FL": {
+    "source": "https://github.com/Siyuan01/PHP-FL-main (clientPHP + serverPHP)",
+    "hparams": {
+      "valid_ratio": 0.1,
+      "sig_k": 5.0,
+      "tau": 0.2,
+      "private_weight_lr": 0.001,
+      "weight_steps": 10,
+      "min_valid": 2,
+      "max_valid": 5,
+      "valid_floor_divisor": 4,
+      "join_ratio": 1.0,
+      "grad_clip_norm": 5.0
+    },
+    "aggregation": "uniform mean of uploaded personal global copies + top-p masked update",
+    "personalization": "deployed model = weight * private + (1 - weight) * personal_global"
+  },
+  "Centralized": {
+    "source": "single CNN-2 trained on the fully aggregated training set",
+    "aggregation": "n/a",
+    "personalization": "none"
+  }
+}

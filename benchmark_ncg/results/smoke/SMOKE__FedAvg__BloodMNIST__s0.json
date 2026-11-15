@@ -1,0 +1,99 @@
+{
+  "alpha": null,
+  "backbone": "cnn2",
+  "centralized_ref_key": "cent__BloodMNIST__cnn2__s0",
+  "class_gap": 1.0,
+  "client_count": 6,
+  "config": {
+    "alpha": null,
+    "backbone": "cnn2",
+    "centralized_protocol": {
+      "batch_size": 64,
+      "early_stopping_patience": 20,
+      "lr": 0.01,
+      "lr_schedule": "cosine",
+      "max_epochs": 250,
+      "momentum": 0.9,
+      "val_fraction": 0.1,
+      "weight_decay": 0.0001
+    },
+    "centralized_ref_file": "C:\\Users\\J Paul Masillamni\\Desktop\\FL-Project\\benchmark_ncg\\results\\centralized\\cent__BloodMNIST__cnn2__s0.json",
+    "centralized_ref_key": "cent__BloodMNIST__cnn2__s0",
+    "client_count": 6,
+    "data_spec": {
+      "centralized_val": "official_val",
+      "image_size": 28,
+      "in_channels": 3,
+      "mean": [
+        0.7941,
+        0.5283,
+        0.7275
+      ],
+      "note": "official MedMNIST v2 split; val (1,712) used only for centralized early stopping, test (3,421) only for scoring; natural class imbalance preserved",
+      "num_classes": 8,
+      "official_split": {
+        "test": 3421,
+        "train": 11959,
+        "val": 1712
+      },
+      "std": [
+        0.6947,
+        0.6736,
+        0.7106
+      ]
+    },
+    "dataset": "BloodMNIST",
+    "fashionmnist_subsample_file": null,
+    "hparams": {},
+    "in_channels": 3,
+    "method": "FedAvg",
+    "method_source": "standard Federated Averaging baseline (no official paper repo); shared hyper-parameters",
+    "num_classes": 8,
+    "partition_file": "C:\\Users\\J Paul Masillamni\\Desktop\\FL-Project\\benchmark_ncg\\results\\smoke\\smoke_partition_BloodMNIST_n6.json",
+    "protocol": "iid",
+    "run_id": "SMOKE__FedAvg__BloodMNIST__s0",
+    "seed": 0,
+    "setting": "B1",
+    "setting_label": "Homogeneous IID",
+    "training": {
+      "batch_size": 64,
+      "local_epochs": 1,
+      "lr": 0.01,
+      "lr_schedule": "cosine",
+      "momentum": 0.9,
+      "participation": 1.0,
+      "rounds": 2,
+      "weight_decay": 0.0001
+    },
+    "wall_clock_budget_hours": 15.0
+  },
+  "dataset": "BloodMNIST",
+  "eval_curve": null,
+  "fashionmnist_subsample_file": null,
+  "fl_class_gap": 1.0,
+  "kind": "fl",
+  "local_epochs": 1,
+  "method": "FedAvg",
+  "minority_class": 0,
+  "notes": "sample-weighted FedAvg; 2 rounds x 1 local epochs; full participation; CNN-2; fixed schedule, no early stopping",
+  "partition_file": "C:\\Users\\J Paul Masillamni\\Desktop\\FL-Project\\benchmark_ncg\\results\\smoke\\smoke_partition_BloodMNIST_n6.json",
+  "per_class_recall": [
+    0.0,
+    0.0,
+    0.0,
+    0.998272884283247,
+    0.0,
+    0.0,
+    0.0,
+    1.0
+  ],
+  "per_client_accuracy": null,
+  "per_client_recall": null,
+  "rounds": 2,
+  "run_id": "SMOKE__FedAvg__BloodMNIST__s0",
+  "seed": 0,
+  "setting": "B1",
+  "status": "complete",
+  "test_accuracy": 0.30634317451037707,
+  "wall_clock_seconds": 0.2296586036682129
+}

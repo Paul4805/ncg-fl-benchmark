@@ -1,0 +1,72 @@
+{
+  "seeds": [0, 1, 2],
+  "fl_methods": ["FedAvg", "FedAPEN", "FedFV", "PHP-FL"],
+  "num_clients": 20,
+  "backbone": "cnn2",
+  "wall_clock_budget_hours": 15.0,
+  "training": {
+    "rounds": 50,
+    "local_epochs": 5,
+    "batch_size": 64,
+    "lr": 0.01,
+    "momentum": 0.9,
+    "weight_decay": 0.0001,
+    "lr_schedule": "cosine",
+    "participation": 1.0
+  },
+  "centralized": {
+    "max_epochs": 250,
+    "batch_size": 64,
+    "lr": 0.01,
+    "momentum": 0.9,
+    "weight_decay": 0.0001,
+    "lr_schedule": "cosine",
+    "early_stopping_patience": 20,
+    "val_fraction": 0.1
+  },
+  "settings": {
+    "B1": {
+      "label": "Homogeneous IID",
+      "protocol": "iid",
+      "alpha": null
+    },
+    "B2": {
+      "label": "Homogeneous non-IID Dirichlet alpha=0.5",
+      "protocol": "dirichlet",
+      "alpha": 0.5
+    },
+    "B3": {
+      "label": "Homogeneous non-IID Dirichlet alpha=0.1",
+      "protocol": "dirichlet",
+      "alpha": 0.1
+    }
+  },
+  "datasets": {
+    "BloodMNIST": {
+      "num_classes": 8,
+      "in_channels": 3,
+      "image_size": 28,
+      "mean": [0.7941, 0.5283, 0.7275],
+      "std": [0.6947, 0.6736, 0.7106],
+      "official_split": {"train": 11959, "val": 1712, "test": 3421},
+      "centralized_val": "official_val",
+      "note": "official MedMNIST v2 split; val (1,712) used only for centralized early stopping, test (3,421) only for scoring; natural class imbalance preserved"
+    },
+    "FashionMNIST": {
+      "num_classes": 10,
+      "in_channels": 1,
+      "image_size": 28,
+      "mean": [0.286],
+      "std": [0.353],
+      "official_split": {"train": 60000, "test": 10000},
+      "subsample": {
+        "train": 30000,
+        "test": 5000,
+        "train_per_class": 3000,
+        "test_per_class": 500
+      },
+      "centralized_val": "stratified_train_10pct",
+      "note": "per-seed stratified subsample: 3,000/class from the official train pool, 500/class from the official test pool"
+    }
+  }
+}
