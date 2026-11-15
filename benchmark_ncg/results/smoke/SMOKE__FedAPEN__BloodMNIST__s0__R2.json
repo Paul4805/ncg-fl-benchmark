@@ -4,6 +4,7 @@
   "centralized_ref_key": "cent__BloodMNIST__cnn2__s0__R250",
   "class_gap": 0.9836879432624115,
   "client_count": 6,
+  "client_params_actual": null,
   "config": {
     "alpha": null,
     "backbone": "cnn2",
@@ -189,5 +190,5 @@
   "setting": "B1",
   "status": "complete",
   "test_accuracy": 0.3239793432719478,
-  "wall_clock_seconds": 1.26296067237854
+  "wall_clock_seconds": 0.6989991664886475
 }

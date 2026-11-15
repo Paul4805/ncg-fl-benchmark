@@ -138,6 +138,28 @@ def record_eval_round(curve: dict | None, r: int, eval_rounds, acc: float):
         curve[str(r + 1)] = float(acc)
 
 
+def assert_hetero_client_models(ctx, client_models):
+    """Fail loudly if the heterogeneous factory was bypassed (all CNN2)."""
+    counts = [models.count_parameters(m) for m in client_models]
+    dataset = ctx.cfg["dataset"]
+    cnn2_ref = 44584 if dataset == "BloodMNIST" else 50282
+    if all(c == cnn2_ref for c in counts):
+        raise AssertionError(
+            f"BUG: all clients built as CNN2 ({cnn2_ref} params) - build_client_model bypassed"
+        )
+    if ctx.cfg["method"] == "FedAPEN":
+        if len(set(counts)) != 20:
+            raise AssertionError(f"FedAPEN expected 20 distinct client archs, got {len(set(counts))}")
+        if not all(122018 <= c <= 504146 for c in counts):
+            raise AssertionError(f"FedAPEN params out of range: {sorted(set(counts))}")
+    else:
+        expected = ({19473, 19004, 25276, 29124} if dataset == "BloodMNIST"
+                    else {20283, 19814, 26086, 29934})
+        if set(counts) != expected:
+            raise AssertionError(f"PHP-FL expected {sorted(expected)}, got {sorted(set(counts))}")
+    return counts
+
+
 # ---------------------------------------------------------------------------
 # Small shared split policies (FedAPEN adaptability / PHP-FL validation)
 # ---------------------------------------------------------------------------

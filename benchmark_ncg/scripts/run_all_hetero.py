@@ -44,7 +44,7 @@ class Task:
         return LOG_DIR / (self.task_id.replace("__", "_").replace("/", "_") + ".out")
 
 
-def build_tasks(resume=True):
+def build_tasks(resume=True, settings=None):
     tasks = []
     for dataset in config.DATASET_NAMES:
         for seed in config.SEEDS:
@@ -60,6 +60,8 @@ def build_tasks(resume=True):
                     ))
     for method in hc.HET_METHODS:
         for setting in hc.HET_SETTINGS[method]:
+            if settings is not None and setting not in settings:
+                continue
             if method == "FedAPEN":
                 phase = 10
             else:
@@ -117,6 +119,8 @@ def main(argv=None):
     ap.add_argument("--max-hours", type=float, default=12.0)
     ap.add_argument("--internal-stop", type=float, default=10.0)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--settings", nargs="+", default=None, choices=list(config.SETTINGS),
+                    help="restrict to these settings (e.g. --settings B3)")
     args = ap.parse_args(argv)
 
     ok, diffs = hc.verify_main_table()
@@ -127,7 +131,7 @@ def main(argv=None):
     t_start = time.time()
     deadline = t_start + args.max_hours * 3600
     internal = t_start + args.internal_stop * 3600
-    tasks = build_tasks(resume=not args.force)
+    tasks = build_tasks(resume=not args.force, settings=args.settings)
     print(f"[hetero] {len(tasks)} tasks queued "
           f"({sum(t.kind == 'fl' for t in tasks)} FL, {sum(t.kind == 'ref' for t in tasks)} ref-groups) "
           f"workers={args.workers} hard={args.max_hours}h internal={args.internal_stop}h")
