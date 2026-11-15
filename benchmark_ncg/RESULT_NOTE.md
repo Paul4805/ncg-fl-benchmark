@@ -81,6 +81,12 @@ Accuracy gap = centralized - method (positive = FL worse):
 
 From B1 to B3, FedAvg's top-1 accuracy on BloodMNIST falls (0.9068 -> 0.8156) while its NCG goes from +0.0984 to +0.6241. At B3 it reaches 81.56% top-1 and 75.08% balanced accuracy; the top-1 minus balanced gap (delta = +0.0648) is itself a proxy for class imbalance and is consistent with the NCG direction.
 
+## Accuracy-NCG regimes
+
+Regime thresholds: acc < 0.60 = low; NCG > 0.20 = high.
+
+NCG must be interpreted jointly with accuracy. PHP-FL's NCG falls from +0.338 (B1) to +0.102 (B3) on BloodMNIST as its accuracy falls from 0.825 to 0.341. This is not a fairness improvement - it is uniform failure: recall is low and similar across classes. By contrast, FedAvg at B3 has accuracy 0.816 and NCG +0.624: accuracy stays high but is concentrated, with near-zero recall on some classes. With the stated thresholds the B3 FL methods split into two computed regimes, not three: FedAvg high_acc_high_ncg (0.816/+0.624); FedAPEN high_acc_high_ncg (0.824/+0.315); FedFV high_acc_high_ncg (0.819/+0.375); PHP-FL low_acc_low_ncg (0.341/+0.102). On FashionMNIST the same split appears (PHP-FL low_acc_low_ncg; FedAvg high_acc_low_ncg; FedAPEN high_acc_high_ncg; FedFV high_acc_high_ncg). NCG alone cannot distinguish uniform failure from selective failure, so we report accuracy and NCG as a pair and recommend that future work on class-gap metrics include accuracy alongside them.
+
 ## Recommendation
 
 The main comparison at R=50 is complete and defensible; the R=75 extension is available but not recommended for the main table.

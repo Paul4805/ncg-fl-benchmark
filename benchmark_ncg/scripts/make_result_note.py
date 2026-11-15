@@ -201,6 +201,51 @@ def main():
                       f"imbalance. Note that accuracy from B1 to B3 does not fall for this "
                       f"cell, so the expected accuracy/NCG opposition does not hold here.", ""]
 
+        # Accuracy-NCG regimes (joint interpretation)
+        def acc_of(dataset, method, setting):
+            r = acc[(acc["dataset"] == dataset) & (acc["method"] == method) &
+                    (acc["setting"] == setting)]
+            return float(r["acc_mean"].iloc[0]) if len(r) else float("nan")
+
+        def regime(a, n):
+            if a != a or n != n:
+                return "n/a"
+            low = a < 0.60
+            high = n > 0.20
+            return ("low_acc_high_ncg" if low and high else
+                    "low_acc_low_ncg" if low else
+                    "high_acc_high_ncg" if high else "high_acc_low_ncg")
+
+        php_b1_acc = acc_of("BloodMNIST", "PHP-FL", "B1")
+        php_b3_acc = acc_of("BloodMNIST", "PHP-FL", "B3")
+        php_b1_ncg, _ = ncg_of("BloodMNIST", "PHP-FL", "B1")
+        php_b3_ncg, _ = ncg_of("BloodMNIST", "PHP-FL", "B3")
+        fa_b3_acc = acc_of("BloodMNIST", "FedAvg", "B3")
+        fa_b3_ncg, _ = ncg_of("BloodMNIST", "FedAvg", "B3")
+        b3_regimes = []
+        for m in config.FL_METHODS:
+            a = acc_of("BloodMNIST", m, "B3")
+            n, _ = ncg_of("BloodMNIST", m, "B3")
+            b3_regimes.append(f"{m} {regime(a, n)} ({a:.3f}/{n:+.3f})")
+        lines += ["## Accuracy-NCG regimes", "",
+                  "Regime thresholds: acc < 0.60 = low; NCG > 0.20 = high.", "",
+                  f"NCG must be interpreted jointly with accuracy. PHP-FL's NCG falls from "
+                  f"{php_b1_ncg:+.3f} (B1) to {php_b3_ncg:+.3f} (B3) on BloodMNIST as its "
+                  f"accuracy falls from {php_b1_acc:.3f} to {php_b3_acc:.3f}. This is not a "
+                  f"fairness improvement - it is uniform failure: recall is low and similar "
+                  f"across classes. By contrast, FedAvg at B3 has accuracy {fa_b3_acc:.3f} and "
+                  f"NCG {fa_b3_ncg:+.3f}: accuracy stays high but is concentrated, with "
+                  f"near-zero recall on some classes. With the stated thresholds the B3 FL "
+                  f"methods split into two computed regimes, not three: "
+                  + "; ".join(b3_regimes) + ". On FashionMNIST the same split appears "
+                  f"(PHP-FL {regime(acc_of('FashionMNIST', 'PHP-FL', 'B3'), ncg_of('FashionMNIST', 'PHP-FL', 'B3')[0])}; "
+                  f"FedAvg {regime(acc_of('FashionMNIST', 'FedAvg', 'B3'), ncg_of('FashionMNIST', 'FedAvg', 'B3')[0])}; "
+                  f"FedAPEN {regime(acc_of('FashionMNIST', 'FedAPEN', 'B3'), ncg_of('FashionMNIST', 'FedAPEN', 'B3')[0])}; "
+                  f"FedFV {regime(acc_of('FashionMNIST', 'FedFV', 'B3'), ncg_of('FashionMNIST', 'FedFV', 'B3')[0])}). "
+                  f"NCG alone cannot distinguish uniform failure from selective failure, so we "
+                  f"report accuracy and NCG as a pair and recommend that future work on "
+                  f"class-gap metrics include accuracy alongside them.", ""]
+
     lines += ["## Recommendation", "",
               "The main comparison at R=50 is complete and defensible; the R=75 extension is "
               "available but not recommended for the main table.", ""]

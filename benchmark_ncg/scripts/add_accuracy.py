@@ -50,6 +50,21 @@ def run_balanced(recall) -> float:
     return float(np.asarray(recall, dtype=float).mean())
 
 
+def acc_ncg_regime(acc, ncg) -> str:
+    """Joint interpretation. Thresholds: acc < 0.60 = low; NCG > 0.20 = high."""
+    if acc != acc:
+        return ""
+    acc_low = float(acc) < 0.60
+    ncg_high = (ncg == ncg) and float(ncg) > 0.20
+    if not acc_low and not ncg_high:
+        return "high_acc_low_ncg"
+    if not acc_low and ncg_high:
+        return "high_acc_high_ncg"
+    if acc_low and not ncg_high:
+        return "low_acc_low_ncg"
+    return "low_acc_high_ncg"
+
+
 # ---------------------------------------------------------------------------
 # Part A -- homogeneous
 # ---------------------------------------------------------------------------
@@ -85,6 +100,15 @@ def part_a():
             "num_seeds": int(g["seed"].nunique()),
         })
     hom = pd.DataFrame(rows).sort_values(["dataset", "method", "setting"])
+    try:
+        ncg = pd.read_csv(config.RESULTS_DIR / "summary_ncg.csv")[
+            ["setting", "method", "dataset", "ncg_mean"]]
+        hom = hom.merge(ncg, on=["setting", "method", "dataset"], how="left")
+    except Exception:
+        hom["ncg_mean"] = np.nan
+    hom.loc[hom["method"] == "Centralized", "ncg_mean"] = 0.0
+    hom["acc_ncg_regime"] = [acc_ncg_regime(a, n) for a, n in
+                             zip(hom["acc_mean"], hom["ncg_mean"])]
     hom.to_csv(config.RESULTS_DIR / "summary_accuracy_hom.csv", index=False)
     print(f"[A] raw_results_with_accuracy.csv: {len(raw)} rows")
     print(f"[A] summary_accuracy_hom.csv: {len(hom)} rows")
@@ -108,6 +132,7 @@ def part_b():
             "setting": d["setting"], "method": d["method"], "dataset": d["dataset"],
             "seed": int(d["seed"]),
             "acc": float(np.mean(per_acc)), "bal_acc": float(np.mean(per_bal)),
+            "ncg_hetero": float(d["ncg_hetero"]),
             "per_client_acc": per_acc,
         })
     runs_df = pd.DataFrame(runs)
@@ -162,10 +187,19 @@ def part_b():
     het = pd.DataFrame(rows).sort_values(["dataset", "method", "setting"])
     het["acc_gap"] = het["cent_acc_mean"] - het["acc_mean"]
     het["bal_acc_gap"] = het["cent_bal_acc_mean"] - het["bal_acc_mean"]
+    ncg_mean = runs_df.groupby(["setting", "method", "dataset"])["ncg_hetero"].mean() \
+        if "ncg_hetero" in runs_df else None
+    if ncg_mean is not None:
+        het = het.merge(ncg_mean.rename("ncg_hetero_mean").reset_index(),
+                        on=["setting", "method", "dataset"], how="left")
+    else:
+        het["ncg_hetero_mean"] = np.nan
+    het["acc_ncg_regime"] = [acc_ncg_regime(a, n) for a, n in
+                             zip(het["acc_mean"], het["ncg_hetero_mean"])]
     het = het[["setting", "method", "dataset", "acc_mean", "acc_std",
                "bal_acc_mean", "bal_acc_std", "cent_acc_mean", "cent_acc_std",
                "cent_bal_acc_mean", "cent_bal_acc_std", "acc_gap", "bal_acc_gap",
-               "num_seeds"]]
+               "ncg_hetero_mean", "acc_ncg_regime", "num_seeds"]]
     het.to_csv(config.RESULTS_DIR / "summary_accuracy_hetero.csv", index=False)
     print(f"[B] summary_accuracy_hetero_per_arch.csv: {len(pa)} rows")
     print(f"[B] summary_accuracy_hetero.csv: {len(het)} rows")
