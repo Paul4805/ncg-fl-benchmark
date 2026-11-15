@@ -44,11 +44,13 @@ class Task:
         return LOG_DIR / (self.task_id.replace("__", "_").replace("/", "_") + ".out")
 
 
-def build_tasks(resume=True, settings=None):
+def build_tasks(resume=True, settings=None, methods=None):
     tasks = []
     for dataset in config.DATASET_NAMES:
         for seed in config.SEEDS:
             for method in hc.HET_METHODS:
+                if methods is not None and method not in methods:
+                    continue
                 out = hc.mean_path(method, dataset, seed)
                 if not (resume and out.exists()):
                     tasks.append(Task(
@@ -59,6 +61,8 @@ def build_tasks(resume=True, settings=None):
                         priority=(0, DS_IDX[dataset], int(seed), METHOD_IDX[method]),
                     ))
     for method in hc.HET_METHODS:
+        if methods is not None and method not in methods:
+            continue
         for setting in hc.HET_SETTINGS[method]:
             if settings is not None and setting not in settings:
                 continue
@@ -133,7 +137,7 @@ def main(argv=None):
     t_start = time.time()
     deadline = t_start + args.max_hours * 3600
     internal = t_start + args.internal_stop * 3600
-    tasks = build_tasks(resume=not args.force, settings=args.settings)
+    tasks = build_tasks(resume=not args.force, settings=args.settings, methods=args.methods)
     print(f"[hetero] {len(tasks)} tasks queued "
           f"({sum(t.kind == 'fl' for t in tasks)} FL, {sum(t.kind == 'ref' for t in tasks)} ref-groups) "
           f"workers={args.workers} hard={args.max_hours}h internal={args.internal_stop}h")

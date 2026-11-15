@@ -18,7 +18,7 @@ CNN2 reference: 44,584 parameters (BloodMNIST shape).
 
 ## Scope
 
-Scope: FedAPEN (B3; full official); PHP-FL (B3; with substitutes per DEVIATIONS.md). 20 clients, R=50, E=5, seeds {0,1,2}, per-architecture centralized references.
+Scope: FedAPEN (B2, B3; full official); PHP-FL (B3; with substitutes per DEVIATIONS.md). 20 clients, R=50, E=5, seeds {0,1,2}, per-architecture centralized references.
 
 ## Architectures
 
@@ -42,9 +42,9 @@ Client assignment: FedAPEN cid -> cid; PHP-FL cid -> cid % 4.
 
 | dataset | method | B1 | B2 | B3 |
 |---|---|---|---|---|
-| BloodMNIST | FedAPEN | not run | not run | +0.349 +/- 0.049 |
+| BloodMNIST | FedAPEN | not run | +0.083 +/- 0.014 | +0.349 +/- 0.049 |
 | BloodMNIST | PHP-FL | not run | not run | +0.125 +/- 0.029 |
-| FashionMNIST | FedAPEN | not run | not run | +0.361 +/- 0.069 |
+| FashionMNIST | FedAPEN | not run | +0.064 +/- 0.049 | +0.361 +/- 0.069 |
 | FashionMNIST | PHP-FL | not run | not run | +0.107 +/- 0.140 |
 
 ## Side-by-side: homogeneous (main table) vs heterogeneous
@@ -52,13 +52,13 @@ Client assignment: FedAPEN cid -> cid; PHP-FL cid -> cid % 4.
 | dataset | method | setting | homogeneous NCG | hetero NCG | delta (het - hom) |
 |---|---|---|---|---|---|
 | BloodMNIST | FedAPEN | B1 | +0.039 +/- 0.013 | +nan +/- nan | +nan |
-| BloodMNIST | FedAPEN | B2 | +0.037 +/- 0.019 | +nan +/- nan | +nan |
+| BloodMNIST | FedAPEN | B2 | +0.037 +/- 0.019 | +0.083 +/- 0.014 | +0.046 |
 | BloodMNIST | FedAPEN | B3 | +0.315 +/- 0.099 | +0.349 +/- 0.049 | +0.034 |
 | BloodMNIST | PHP-FL | B1 | +0.338 +/- 0.009 | +nan +/- nan | +nan |
 | BloodMNIST | PHP-FL | B2 | +0.379 +/- 0.123 | +nan +/- nan | +nan |
 | BloodMNIST | PHP-FL | B3 | +0.102 +/- 0.037 | +0.125 +/- 0.029 | +0.023 |
 | FashionMNIST | FedAPEN | B1 | +0.031 +/- 0.068 | +nan +/- nan | +nan |
-| FashionMNIST | FedAPEN | B2 | +0.085 +/- 0.064 | +nan +/- nan | +nan |
+| FashionMNIST | FedAPEN | B2 | +0.085 +/- 0.064 | +0.064 +/- 0.049 | -0.021 |
 | FashionMNIST | FedAPEN | B3 | +0.378 +/- 0.076 | +0.361 +/- 0.069 | -0.017 |
 | FashionMNIST | PHP-FL | B1 | +0.131 +/- 0.060 | +nan +/- nan | +nan |
 | FashionMNIST | PHP-FL | B2 | +0.169 +/- 0.050 | +nan +/- nan | +nan |
@@ -79,12 +79,14 @@ No cell changed by more than 0.05.
 - Main-table (homogeneous) results are unchanged; heterogeneous results live in a separate namespace and are never mixed into the main CSVs.
 - PHP-FL B2 was not completed within the 12-hour budget. Hetero conclusions for PHP-FL are B3-only.
 
-## Accuracy (B3 hetero, mean +/- std over seeds)
+## Accuracy (B2B3 hetero, mean +/- std over seeds)
 
 | setting | dataset | method | top-1 acc | balanced acc |
 |---|---|---|---|---|
+| B2 | BloodMNIST | FedAPEN | 0.9197 +/- 0.0063 | 0.9062 +/- 0.0078 |
 | B3 | BloodMNIST | FedAPEN | 0.8216 +/- 0.0211 | 0.7925 +/- 0.0168 |
 | B3 | BloodMNIST | PHP-FL | 0.3596 +/- 0.0219 | 0.3466 +/- 0.0219 |
+| B2 | FashionMNIST | FedAPEN | 0.8851 +/- 0.0018 | 0.8851 +/- 0.0018 |
 | B3 | FashionMNIST | FedAPEN | 0.7651 +/- 0.0385 | 0.7651 +/- 0.0385 |
 | B3 | FashionMNIST | PHP-FL | 0.3360 +/- 0.0197 | 0.3360 +/- 0.0197 |
 
@@ -103,4 +105,4 @@ Seed 2 of PHP-FL Fashion B3 achieved NCG = -0.0085, i.e. FL class gap (0.3500) w
 
 ## Limitation (budget)
 
-Heterogeneous results cover FedAPEN ['B3'], PHP-FL ['B3']. B1 hetero was not evaluated in this block. The homogeneous R=50 main table remains the primary result; this block is a reference-sensitivity check under real heterogeneous client architectures.
+Heterogeneous results cover FedAPEN ['B2', 'B3'], PHP-FL ['B3']. B1 hetero was not evaluated in this block. The homogeneous R=50 main table remains the primary result; this block is a reference-sensitivity check under real heterogeneous client architectures.

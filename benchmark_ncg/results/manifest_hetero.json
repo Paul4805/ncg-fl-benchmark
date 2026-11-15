@@ -70,7 +70,7 @@
       "run_id": "B2__FedAPEN__BloodMNIST__s0__HET__R50",
       "seed": 0,
       "setting": "B2",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "dataset": "BloodMNIST",
@@ -80,7 +80,7 @@
       "run_id": "B2__FedAPEN__BloodMNIST__s1__HET__R50",
       "seed": 1,
       "setting": "B2",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "dataset": "BloodMNIST",
@@ -90,7 +90,7 @@
       "run_id": "B2__FedAPEN__BloodMNIST__s2__HET__R50",
       "seed": 2,
       "setting": "B2",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "dataset": "FashionMNIST",
@@ -100,7 +100,7 @@
       "run_id": "B2__FedAPEN__FashionMNIST__s0__HET__R50",
       "seed": 0,
       "setting": "B2",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "dataset": "FashionMNIST",
@@ -110,7 +110,7 @@
       "run_id": "B2__FedAPEN__FashionMNIST__s1__HET__R50",
       "seed": 1,
       "setting": "B2",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "dataset": "FashionMNIST",
@@ -120,7 +120,7 @@
       "run_id": "B2__FedAPEN__FashionMNIST__s2__HET__R50",
       "seed": 2,
       "setting": "B2",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "dataset": "BloodMNIST",
@@ -363,7 +363,7 @@
       "status": "complete"
     }
   ],
-  "generated_at": "2026-11-15 14:06:56",
+  "generated_at": "2026-11-15 15:32:18",
   "local_epochs": 5,
   "ref_tasks": [
     {
@@ -1822,7 +1822,7 @@
   },
   "totals": {
     "fl": 36,
-    "fl_complete": 12,
+    "fl_complete": 18,
     "refs": 144,
     "refs_complete": 144
   }
