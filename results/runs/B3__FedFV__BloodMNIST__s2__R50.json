@@ -1,0 +1,110 @@
+{
+  "alpha": 0.1,
+  "backbone": "cnn2",
+  "centralized_ref_key": "cent__BloodMNIST__cnn2__s2__R250",
+  "class_gap": 0.7068887338681549,
+  "client_count": 20,
+  "config": {
+    "alpha": 0.1,
+    "backbone": "cnn2",
+    "centralized_protocol": {
+      "batch_size": 64,
+      "early_stopping_patience": 20,
+      "lr": 0.01,
+      "lr_schedule": "cosine",
+      "max_epochs": 250,
+      "momentum": 0.9,
+      "val_fraction": 0.1,
+      "weight_decay": 0.0001
+    },
+    "centralized_ref_file": "C:\\Users\\J Paul Masillamni\\Desktop\\FL-Project\\results\\centralized\\cent__BloodMNIST__cnn2__s2__R250.json",
+    "centralized_ref_key": "cent__BloodMNIST__cnn2__s2__R250",
+    "client_count": 20,
+    "data_spec": {
+      "centralized_val": "official_val",
+      "image_size": 28,
+      "in_channels": 3,
+      "mean": [
+        0.7941,
+        0.5283,
+        0.7275
+      ],
+      "note": "official MedMNIST v2 split; val (1,712) used only for centralized early stopping, test (3,421) only for scoring; natural class imbalance preserved",
+      "num_classes": 8,
+      "official_split": {
+        "test": 3421,
+        "train": 11959,
+        "val": 1712
+      },
+      "std": [
+        0.6947,
+        0.6736,
+        0.7106
+      ]
+    },
+    "dataset": "BloodMNIST",
+    "fashionmnist_subsample_file": null,
+    "hparams": {
+      "fedfv_alpha": 0.1,
+      "fedfv_tau": 1
+    },
+    "in_channels": 3,
+    "method": "FedFV",
+    "method_source": "https://github.com/WwZzz/easyFL (flgo/algorithm/fedfv.py) -- FedFV as the aggregation rule",
+    "num_classes": 8,
+    "partition_file": "C:\\Users\\J Paul Masillamni\\Desktop\\FL-Project\\partitions\\BloodMNIST\\BloodMNIST__dirichlet_a0p1__n20__s2.json",
+    "protocol": "dirichlet",
+    "run_id": "B3__FedFV__BloodMNIST__s2__R50",
+    "seed": 2,
+    "setting": "B3",
+    "setting_label": "Homogeneous non-IID Dirichlet alpha=0.1",
+    "training": {
+      "batch_size": 64,
+      "local_epochs": 5,
+      "lr": 0.01,
+      "lr_schedule": "cosine",
+      "momentum": 0.9,
+      "participation": 1.0,
+      "rounds": 50,
+      "weight_decay": 0.0001
+    },
+    "wall_clock_budget_hours": 15.0
+  },
+  "dataset": "BloodMNIST",
+  "env": {
+    "device": "NVIDIA GeForce RTX 3060 Laptop GPU",
+    "finished_at": "2026-11-14 22:47:36",
+    "python": "3.12.10",
+    "torch": "2.14.1+cu126"
+  },
+  "eval_curve": null,
+  "fashionmnist_subsample_file": null,
+  "fedfv_alpha": 0.1,
+  "fedfv_tau": 1,
+  "fl_class_gap": 0.7068887338681549,
+  "kind": "fl",
+  "local_epochs": 5,
+  "method": "FedFV",
+  "minority_class": 0,
+  "notes": "easyFL FedFV aggregation (alpha=0.1, tau=1, uniform mean of projected deltas, loss-sorted); 50 rounds x 5 local epochs; full participation; CNN-2",
+  "partition_file": "C:\\Users\\J Paul Masillamni\\Desktop\\FL-Project\\partitions\\BloodMNIST\\BloodMNIST__dirichlet_a0p1__n20__s2.json",
+  "per_class_recall": [
+    0.29098360655737704,
+    0.9150641025641025,
+    0.40836012861736337,
+    0.5803108808290155,
+    0.8353909465020576,
+    0.7640845070422535,
+    0.8543543543543544,
+    0.997872340425532
+  ],
+  "per_client_accuracy": null,
+  "per_client_recall": null,
+  "rounds": 50,
+  "run_id": "B3__FedFV__BloodMNIST__s2__R50",
+  "seed": 2,
+  "setting": "B3",
+  "status": "complete",
+  "test_accuracy": 0.7491961414790996,
+  "wall_clock_seconds": 58.265220165252686
+}

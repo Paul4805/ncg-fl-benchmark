@@ -41,9 +41,15 @@ Environments"* ([poster](https://neurips.cc/virtual/2025/loc/san-diego/poster/11
 | FashionMNIST | per-seed subsample: 30,000 train / 5,000 test (3,000 / 500 per class) |
 | centralized | CNN-2, max 250 epochs, early stopping patience 20, best-val checkpoint |
 
-The centralized reference is **one CNN-2 model per (dataset, seed)** and is shared
-by all four methods and all three settings. No per-architecture or
-backbone-averaged reference is used.
+Partitions: IID shuffle or class-wise Dirichlet (alpha in {0.5, 0.1}) with
+`numpy.random.default_rng(seed)`, empty clients repaired, and the index lists saved
+to `partitions/`. The global test set is never partitioned.
+
+The centralized reference is **one CNN-2 model per (dataset, seed)**, trained on
+the full aggregated training set, and shared by all four methods and all three
+settings. Early stopping uses a validation set that is never the test set
+(BloodMNIST: official val split; FashionMNIST: stratified 10 % of the training
+subsample). No per-architecture or backbone-averaged reference is used.
 
 ## Metric
 
@@ -53,9 +59,9 @@ ClassGap   = max_c(recall_c) - min_c(recall_c)
 NCG        = (ClassGap_FL - ClassGap_Centralized) / (1 - ClassGap_Centralized)
 ```
 
-Per-class recall **vectors** are always averaged first (across deployed client
-models for FedAPEN/PHP-FL, across client architectures where applicable), then the
-class gap is computed. Gaps are never averaged.
+Per-class recall **vectors** are always averaged first - across deployed client
+models for FedAPEN/PHP-FL - then the class gap is computed. Gaps are never
+averaged.
 
 ## Results (mean NCG over 3 seeds, R=50, CNN-2)
 
@@ -71,69 +77,82 @@ class gap is computed. Gaps are never averaged.
 | FashionMNIST | PHP-FL | +0.131 | +0.169 | +0.156 |
 
 Top-1 and balanced accuracy are reported alongside NCG in
-`results/summary_accuracy_hom.csv`; NCG must be read jointly with accuracy
-(a low NCG from a uniformly weak model is not a fairness improvement). See
-`benchmark_ncg/RESULT_NOTE.md` for the full discussion.
+`results/summary_accuracy_hom.csv`. NCG must be read jointly with accuracy: a low
+NCG from a uniformly weak model is not a fairness improvement. See
+`RESULT_NOTE.md` for the accuracy/NCG regimes and the per-method failure modes.
 
 ## Repository structure
 
 ```
 .
-├── README.md                      <- this file
+├── README.md                     <- this file (single project README)
+├── DEVIATIONS.md                 <- every deviation from the spec and the papers
+├── RESULT_NOTE.md                <- headline numbers, accuracy/NCG discussion
 ├── .gitignore
-└── benchmark_ncg/
-    ├── README.md                  <- detailed protocol and reproduction commands
-    ├── DEVIATIONS.md              <- every deviation from the original spec/papers
-    ├── RESULT_NOTE.md             <- headline numbers, accuracy/NCG discussion
-    ├── configs/                   <- benchmark.json, methods.json (single source of truth)
-    ├── core/                      <- config, datasets, partitioning, metrics, models, report
-    ├── methods/                   <- fedavg, fedfv, fedapen, phpfl + shared plumbing
-    ├── centralized/               <- CNN-2 centralized training with early stopping
-    ├── scripts/                   <- partitions, training, evaluation, NCG, summaries, plots
-    ├── tests/                     <- 42 validation tests
-    ├── partitions/                <- 18 client partitions + 3 FashionMNIST subsample files
-    └── results/
-        ├── runs/                  <- 72 FL run records (config + recalls + metrics)
-        ├── centralized/           <- 6 centralized references
-        ├── plots/                 <- NCG-vs-setting and B3 recall heatmaps
-        ├── raw_results.csv        <- 78 rows (72 FL + 6 centralized)
-        ├── summary_ncg.csv        <- 24 rows (3 settings x 4 methods x 2 datasets)
-        ├── summary_class_gap.csv
-        ├── summary_accuracy_hom.csv
-        └── manifest.json / .csv   <- 78 jobs, complete/pending
+├── configs/                      <- benchmark.json, methods.json (single source of truth)
+├── core/                         <- config, datasets, partitioning, metrics, models, report
+├── methods/                      <- fedavg, fedfv, fedapen, phpfl + shared plumbing
+├── centralized/                  <- CNN-2 centralized training with early stopping
+├── scripts/                      <- partitions, training, evaluation, NCG, summaries, plots
+├── tests/                        <- 42 validation tests
+├── partitions/                   <- 18 client partitions + 3 FashionMNIST subsample files
+└── results/
+    ├── runs/                     <- 72 FL run records (config + recalls + metrics)
+    ├── centralized/              <- 6 centralized references
+    ├── plots/                    <- NCG-vs-setting, class-gap, B3 recall heatmaps
+    ├── diagnostics/              <- convergence gate, PHP-FL sharing analysis
+    ├── raw_results.csv           <- 78 rows (72 FL + 6 centralized)
+    ├── raw_results_with_accuracy.csv
+    ├── summary_ncg.csv           <- 24 rows (3 settings x 4 methods x 2 datasets)
+    ├── summary_class_gap.csv
+    ├── summary_accuracy_hom.csv  <- 26 rows (24 FL + 2 Centralized)
+    └── manifest.json / .csv      <- 78 jobs, complete/pending
 ```
 
 Datasets, model tensors and per-epoch logs are generated locally and are not
-committed (`benchmark_ncg/data/`, `benchmark_ncg/logs/`).
+committed (`data/`, `logs/`).
 
 ## Quick start
 
 ```bash
 # partitions + per-seed FashionMNIST subsamples
-python -m benchmark_ncg.scripts.generate_partitions
+python -m scripts.generate_partitions
 
 # validation suite (42 tests)
-python -m pytest benchmark_ncg/tests -q
+python -m pytest tests -q
 
 # six centralized CNN-2 references (max 250 epochs each)
-python -m benchmark_ncg.scripts.train_centralized --all
+python -m scripts.train_centralized --all
 
 # convergence gate (FedAvg R=50 vs R=100, PHP-FL R=50 on both alpha legs)
-python -m benchmark_ncg.scripts.convergence_check
+python -m scripts.convergence_check
 
 # 72 B1-B3 FL runs, 2 workers, resumable
-python -m benchmark_ncg.scripts.run_all --stage fl --workers 2 --resume
+python -m scripts.run_all --stage fl --workers 2 --resume
 
 # derived tables, plots and notes
-python -m benchmark_ncg.scripts.compute_ncg
-python -m benchmark_ncg.scripts.make_summary
-python -m benchmark_ncg.scripts.plot_ncg
-python -m benchmark_ncg.scripts.add_accuracy
-python -m benchmark_ncg.scripts.make_result_note
+python -m scripts.compute_ncg
+python -m scripts.make_summary
+python -m scripts.plot_ncg
+python -m scripts.add_accuracy
+python -m scripts.make_result_note
+python -m scripts.verify_homogeneous
 ```
+
+`run_all.py --resume` skips any job whose JSON already exists; jobs are
+independent subprocesses and FL jobs wait for their centralized reference.
+
+## Validation
+
+42 tests cover partition integrity (every sample assigned once, no empty
+clients), the FashionMNIST subsample shape/balance/determinism, the NCG formula,
+the recall definition (`labels=range(C)`, `zero_division=0`), both centralized
+validation paths, dataset isolation, the adaptation-floor rule for tiny
+Dirichlet shards, forbidden settings/backbones, and an end-to-end smoke run of
+all four methods.
 
 ## Documentation
 
-- [`benchmark_ncg/README.md`](benchmark_ncg/README.md) - full protocol, commands, artifacts
-- [`benchmark_ncg/DEVIATIONS.md`](benchmark_ncg/DEVIATIONS.md) - R=50, FashionMNIST subsample, method-specific adaptations
-- [`benchmark_ncg/RESULT_NOTE.md`](benchmark_ncg/RESULT_NOTE.md) - headline numbers, accuracy/NCG regimes, convergence note
+- [`DEVIATIONS.md`](DEVIATIONS.md) - R=50, FashionMNIST subsample, BloodMNIST validation split, method-specific adaptations, gradient clipping
+- [`RESULT_NOTE.md`](RESULT_NOTE.md) - headline numbers, accuracy/NCG regimes, convergence note, homogeneous verification
+- `results/manifest.json` - every run with status and output path

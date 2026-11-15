@@ -1,0 +1,108 @@
+{
+  "alpha": null,
+  "backbone": "cnn2",
+  "centralized_ref_key": "cent__FashionMNIST__cnn2__s0__R250",
+  "class_gap": 0.28600000000000003,
+  "client_count": 20,
+  "config": {
+    "alpha": null,
+    "backbone": "cnn2",
+    "centralized_protocol": {
+      "batch_size": 64,
+      "early_stopping_patience": 20,
+      "lr": 0.01,
+      "lr_schedule": "cosine",
+      "max_epochs": 250,
+      "momentum": 0.9,
+      "val_fraction": 0.1,
+      "weight_decay": 0.0001
+    },
+    "centralized_ref_file": "C:\\Users\\J Paul Masillamni\\Desktop\\FL-Project\\results\\centralized\\cent__FashionMNIST__cnn2__s0__R250.json",
+    "centralized_ref_key": "cent__FashionMNIST__cnn2__s0__R250",
+    "client_count": 20,
+    "data_spec": {
+      "centralized_val": "stratified_train_10pct",
+      "image_size": 28,
+      "in_channels": 1,
+      "mean": [
+        0.286
+      ],
+      "note": "per-seed stratified subsample: 3,000/class from the official train pool, 500/class from the official test pool",
+      "num_classes": 10,
+      "official_split": {
+        "test": 10000,
+        "train": 60000
+      },
+      "std": [
+        0.353
+      ],
+      "subsample": {
+        "test": 5000,
+        "test_per_class": 500,
+        "train": 30000,
+        "train_per_class": 3000
+      }
+    },
+    "dataset": "FashionMNIST",
+    "fashionmnist_subsample_file": "C:\\Users\\J Paul Masillamni\\Desktop\\FL-Project\\partitions\\fashionmnist_subsample_seed0.json",
+    "hparams": {},
+    "in_channels": 1,
+    "method": "FedAvg",
+    "method_source": "standard Federated Averaging baseline (no official paper repo); shared hyper-parameters",
+    "num_classes": 10,
+    "partition_file": "C:\\Users\\J Paul Masillamni\\Desktop\\FL-Project\\partitions\\FashionMNIST\\FashionMNIST__iid__n20__s0.json",
+    "protocol": "iid",
+    "run_id": "B1__FedAvg__FashionMNIST__s0__R50",
+    "seed": 0,
+    "setting": "B1",
+    "setting_label": "Homogeneous IID",
+    "training": {
+      "batch_size": 64,
+      "local_epochs": 5,
+      "lr": 0.01,
+      "lr_schedule": "cosine",
+      "momentum": 0.9,
+      "participation": 1.0,
+      "rounds": 50,
+      "weight_decay": 0.0001
+    },
+    "wall_clock_budget_hours": 15.0
+  },
+  "dataset": "FashionMNIST",
+  "env": {
+    "device": "NVIDIA GeForce RTX 3060 Laptop GPU",
+    "finished_at": "2026-11-14 19:19:31",
+    "python": "3.12.10",
+    "torch": "2.14.1+cu126"
+  },
+  "eval_curve": null,
+  "fashionmnist_subsample_file": "C:\\Users\\J Paul Masillamni\\Desktop\\FL-Project\\partitions\\fashionmnist_subsample_seed0.json",
+  "fl_class_gap": 0.28600000000000003,
+  "kind": "fl",
+  "local_epochs": 5,
+  "method": "FedAvg",
+  "minority_class": 6,
+  "notes": "sample-weighted FedAvg; 50 rounds x 5 local epochs; full participation; CNN-2; fixed schedule, no early stopping",
+  "partition_file": "C:\\Users\\J Paul Masillamni\\Desktop\\FL-Project\\partitions\\FashionMNIST\\FashionMNIST__iid__n20__s0.json",
+  "per_class_recall": [
+    0.856,
+    0.966,
+    0.858,
+    0.9,
+    0.854,
+    0.964,
+    0.69,
+    0.952,
+    0.976,
+    0.962
+  ],
+  "per_client_accuracy": null,
+  "per_client_recall": null,
+  "rounds": 50,
+  "run_id": "B1__FedAvg__FashionMNIST__s0__R50",
+  "seed": 0,
+  "setting": "B1",
+  "status": "complete",
+  "test_accuracy": 0.8978,
+  "wall_clock_seconds": 101.73023533821106
+}

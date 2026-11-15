@@ -1,8 +1,8 @@
 # data and large artifacts
-benchmark_ncg/data/
-benchmark_ncg/checkpoints/
-benchmark_ncg/logs/
-benchmark_ncg/results/smoke/
+data/
+checkpoints/
+logs/
+results/smoke/
 
 # python / tooling caches
 __pycache__/
