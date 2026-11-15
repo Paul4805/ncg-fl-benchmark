@@ -233,3 +233,73 @@ Correction: the final approved PHP-FL substitutes are the micro2 set (19,473 /
 19,004 / 25,276 / 29,124 params; 0.02-0.03M), which supersedes the 0.05-0.4M
 range quoted in the earlier substitute paragraph. The benchmark gate measured
 2.11x (Blood) / 2.05x (Fashion) CNN2 average round time.
+
+## Heterogeneous block: incident log (validation path)
+
+### Incident 1 - model factory bypass (invalid first hetero run)
+What failed: the 36 heterogeneous FL runs produced by the first queue were
+bit-identical to the homogeneous R=50 runs (per-class recall vectors and learned
+ensemble weights matched exactly), so every NCG_hetero value was meaningless.
+Root cause: methods/fedapen.py:60-62 and methods/phpfl.py:99-102 called
+ctx.build_model() without a spec, so every client private model, shared model and
+personal global model was built as benchmark CNN-2 (44,584 params Blood / 50,282
+Fashion); the heterogeneous client_model_specs in the config were never used.
+The per-architecture centralized references were unaffected (built from explicit
+specs).
+Detection: post-hoc parameter audit (no checkpoints were saved; counts were
+reconstructed from the saved run configs) plus a bit-identity comparison against
+the homogeneous runs.
+Fix: commit 888a8b1 (runners use build_client_model/build_global_model);
+parameter-count assertions and finite-loss guards added in 135e52c.
+Valid results affected: none. The homogeneous main table is unaffected (72/72
+runs verified all-CNN-2 and content-identical to commit bab3f7c). All 36 invalid
+hetero run records were quarantined under results/_invalid_hetero_audit/ and the
+affected runs were re-run from scratch.
+
+### Incident 2 - FedAPEN Fashion B3 assertion failure
+What failed: the three FedAPEN Fashion B3 runs aborted at model construction with
+"FedAPEN params out of range: [123910, ..., 508090]" before any training step.
+Root cause: the Phase-2 assertion hard-coded the BloodMNIST FedAPEN parameter
+range (122,018-504,146); the FashionMNIST range is 123,910-508,090 (+~4k).
+Detection: the queue task logs (the runs never trained); the then Blood-only
+smoke could not exercise Fashion.
+Fix: commit 09fec2b - expected counts now derive from
+method_arch_list[*].params_by_dataset[dataset]; targeted tests for all
+method x dataset combinations added in 308b76c.
+Valid results affected: none (no run JSONs were written); the three runs were
+re-launched after the fix.
+
+### Incident 3 - premature FedAPEN Fashion launch before the Fashion smoke
+What failed: process discipline - the three FedAPEN Fashion B3 runs were started
+at 12:45 before the dataset-agnostic Fashion smoke existed.
+Root cause: the re-run was launched from the queue-completion plan rather than
+from the "Fashion smoke first" gate.
+Detection: caught immediately on instruction; the two running workers and the
+launcher were stopped (PIDs 20568, 22684, 25688) before completion.
+Fix: commit 1884f09 made scripts/hetero_smoke.py dataset-agnostic (--dataset,
+params from params_by_dataset, class count from config); both Fashion smoke tests
+then passed (FedAPEN 20 distinct 123,910-508,090; PHP-FL
+{19,814, 20,283, 26,086, 29,934}) and the runs were re-launched.
+Valid results affected: none (no run JSONs were written by the stopped
+processes).
+
+### Validation-path summary
+The heterogeneous block required three iterations to achieve a clean validation
+path. All three bugs were detected by post-hoc checks rather than by the original
+smoke test, which was Blood-only until 1884f09. No valid hetero result existed
+before commit 888a8b1 (the factory fix): the first 36 runs were invalid and were
+re-run from scratch. The six Blood B3 runs were produced after 888a8b1 and
+independently verified (heterogeneous client architectures, asserted parameter
+counts); the Fashion runs use the same post-888a8b1 code path, and the
+dataset-agnostic Fashion smoke added in 1884f09 then passed for both methods
+before the FedAPEN Fashion re-run. (Correction to the drafted wording "no valid
+hetero results prior to 1884f09": the six Blood B3 runs predate that commit and
+are valid; they post-date the factory fix 888a8b1.)
+
+### Homogeneous table status
+The model-factory bug's fallback behavior (build_model() -> CNN-2) coincided
+with the homogeneous block's intended model. Every homogeneous run was verified
+post-hoc to use CNN-2 for all 20 clients (72/72 runs; 44,584 Blood / 50,282
+Fashion), centralized accuracy recomputes to within 5.09e-07, and the run JSONs
+are content-identical to commit bab3f7c. No valid homogeneous result was
+affected by any of the three incidents.
