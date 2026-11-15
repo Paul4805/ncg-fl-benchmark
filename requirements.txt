@@ -1,0 +1,31 @@
+# Verified environment for the homogeneous benchmark.
+# The committed results in results/ were produced with these exact versions.
+#
+#   OS          Windows 11 (10.0.26300)
+#   Python      3.12.10
+#   GPU         NVIDIA GeForce RTX 3060 Laptop, 6 GB, sm_86
+#   CUDA        12.6 (torch wheel cu126), cuDNN 91002
+#
+# Install (CUDA 12.6 wheels):
+#   pip install torch==2.14.1 torchvision==0.29.1 \
+#       --index-url https://download.pytorch.org/whl/cu126
+#   pip install -r requirements.txt
+#
+# CPU-only or other CUDA builds of the same versions also run the code (no
+# architecture-specific kernels are used); keep the exact pins if you want
+# numbers comparable to results/.
+
+# --- core runtime -----------------------------------------------------------
+torch==2.14.1
+torchvision==0.29.1
+numpy==2.5.4
+pandas==3.1.1
+scikit-learn==1.9.1
+matplotlib==3.11.2
+medmnist==3.0.2
+
+# --- pulled in by the above, pinned for repeatable data decoding ------------
+Pillow==13.0.0
+
+# --- validation suite ------------------------------------------------------
+pytest==9.2.0

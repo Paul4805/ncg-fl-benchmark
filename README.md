@@ -88,6 +88,7 @@ NCG from a uniformly weak model is not a fairness improvement. See
 ├── README.md                     <- this file (single project README)
 ├── DEVIATIONS.md                 <- every deviation from the spec and the papers
 ├── RESULT_NOTE.md                <- headline numbers, accuracy/NCG discussion
+├── requirements.txt              <- pinned environment (Python 3.12, PyTorch 2.14)
 ├── .gitignore
 ├── configs/                      <- benchmark.json, methods.json (single source of truth)
 ├── core/                         <- config, datasets, partitioning, metrics, models, report
@@ -141,6 +142,41 @@ python -m scripts.verify_homogeneous
 
 `run_all.py --resume` skips any job whose JSON already exists; jobs are
 independent subprocesses and FL jobs wait for their centralized reference.
+
+## Environment
+
+Results in `results/` were produced with the pinned set in
+[`requirements.txt`](requirements.txt): Python 3.12.10, PyTorch 2.14.1+cu126,
+torchvision 0.29.1+cu126, NumPy 2.5.4, pandas 3.1.1, scikit-learn 1.9.1,
+matplotlib 3.11.2, medmnist 3.0.2, pytest 9.2.0, on Windows 11 with a single
+NVIDIA RTX 3060 Laptop GPU (6 GB, sm_86), CUDA 12.6, cuDNN 91002.
+
+```bash
+pip install torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cu126
+pip install -r requirements.txt
+```
+
+| library | used for |
+|---|---|
+| PyTorch / torchvision | models, autograd, SGD + cosine LR, `DataLoader`, raw FashionMNIST tensors |
+| medmnist | BloodMNIST official v2 split |
+| NumPy | partitions, seeds, metric arithmetic |
+| pandas | `raw_results.csv`, summaries, manifest |
+| scikit-learn | `recall_score` (`labels=range(C)`, `average=None`, `zero_division=0`) |
+| matplotlib | PNG plots, `Agg` backend (headless) |
+| pytest | validation suite |
+
+Notes:
+
+- **No experiment tracker.** There is no wandb, TensorBoard, MLflow, Hydra or
+  Lightning dependency; every run writes one self-contained JSON (config,
+  per-class recall vector, gaps, timings) and all tables/plots are derived from
+  those files by `scripts/`.
+- No mixed precision, no `torch.compile`, no distributed training; every job is
+  a single process with `num_workers=0`.
+- Seeding is deterministic: `random`/NumPy/torch/CUDA are seeded per run,
+  DataLoader shuffling uses explicit generators, and cuDNN runs with
+  `deterministic=True, benchmark=False`.
 
 ## Validation
 
