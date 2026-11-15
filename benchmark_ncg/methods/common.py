@@ -147,16 +147,15 @@ def assert_hetero_client_models(ctx, client_models):
         raise AssertionError(
             f"BUG: all clients built as CNN2 ({cnn2_ref} params) - build_client_model bypassed"
         )
-    if ctx.cfg["method"] == "FedAPEN":
-        if len(set(counts)) != 20:
-            raise AssertionError(f"FedAPEN expected 20 distinct client archs, got {len(set(counts))}")
-        if not all(122018 <= c <= 504146 for c in counts):
-            raise AssertionError(f"FedAPEN params out of range: {sorted(set(counts))}")
-    else:
-        expected = ({19473, 19004, 25276, 29124} if dataset == "BloodMNIST"
-                    else {20283, 19814, 26086, 29934})
-        if set(counts) != expected:
-            raise AssertionError(f"PHP-FL expected {sorted(expected)}, got {sorted(set(counts))}")
+    expected = {int(a["params_by_dataset"][dataset])
+                for a in ctx.cfg.get("method_arch_list", []) if "params_by_dataset" in a}
+    if expected and set(counts) != expected:
+        raise AssertionError(
+            f"{ctx.cfg['method']} expected {sorted(expected)} for {dataset}, "
+            f"got {sorted(set(counts))}"
+        )
+    if ctx.cfg["method"] == "FedAPEN" and len(set(counts)) != 20:
+        raise AssertionError(f"FedAPEN expected 20 distinct client archs, got {len(set(counts))}")
     return counts
 
 
