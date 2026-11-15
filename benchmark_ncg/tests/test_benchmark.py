@@ -437,6 +437,45 @@ def test_hetero_arch_map_and_budget():
             assert model.head(f).shape == (2, 8)
 
 
+@pytest.mark.parametrize("method", ["FedAPEN", "PHP-FL"])
+@pytest.mark.parametrize("dataset", ["BloodMNIST", "FashionMNIST"])
+def test_hetero_param_assert_all_combos(method, dataset):
+    """Assertion helper must pass for every method/dataset combo (smoke covers Blood only)."""
+    from types import SimpleNamespace
+    from benchmark_ncg.core import hetero_config as hc, models
+    from benchmark_ncg.methods.common import assert_hetero_client_models
+
+    cfg = hc.resolve_run_hetero("B3", method, dataset, 0)
+    in_ch = config.DATASETS[dataset]["in_channels"]
+    C = config.DATASETS[dataset]["num_classes"]
+    built = [models.build_model(s["name"], in_ch, C, **(s.get("params") or {}))
+             for s in cfg["client_model_specs"]]
+    counts = assert_hetero_client_models(SimpleNamespace(cfg=cfg), built)
+    expected = [a["params_by_dataset"][dataset] for a in cfg["method_arch_list"]]
+    if method == "FedAPEN":
+        assert counts == expected
+        assert len(set(counts)) == 20
+    else:
+        assert set(counts) == set(expected)
+        assert all(counts.count(v) == 5 for v in expected)
+        assert len(set(counts)) == 4
+
+
+@pytest.mark.parametrize("dataset", ["BloodMNIST", "FashionMNIST"])
+def test_hetero_param_assert_rejects_all_cnn2(dataset):
+    """The bypass guard must fire on both datasets (CNN2 fallback detection)."""
+    from types import SimpleNamespace
+    from benchmark_ncg.core import hetero_config as hc, models
+    from benchmark_ncg.methods.common import assert_hetero_client_models
+
+    cfg = hc.resolve_run_hetero("B3", "PHP-FL", dataset, 0)
+    in_ch = config.DATASETS[dataset]["in_channels"]
+    C = config.DATASETS[dataset]["num_classes"]
+    cnn2 = [models.build_model("cnn2", in_ch, C) for _ in range(20)]
+    with pytest.raises(AssertionError, match="all clients built as CNN2"):
+        assert_hetero_client_models(SimpleNamespace(cfg=cfg), cnn2)
+
+
 def test_hetero_scope_strings_and_substitute_flag():
     from benchmark_ncg.core import hetero_config as hc
     assert hc.SUBSTITUTE_SOURCE.startswith("substituted from official HtM4")
